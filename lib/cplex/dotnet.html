@@ -1,0 +1,231 @@
+<HTML>
+<HEAD>
+		<TITLE>Using IBM ILOG CPLEX Optimizers with .NET</TITLE>
+		<STYLE> <!-- H1 { font-family: "arial", "sans-serif"; color: #406ec1 }
+	H2 { font-family: "arial", "sans-serif"; color: #406ec1 }
+	H3 { font-family: "arial", "sans-serif"; color: #406ec1 }
+	H4 { font-family: "arial", "sans-serif"; color: #406ec1 }
+	HR { color: #406ec1}
+	CODE { font-family: "courier", "courier-new", "serif"; font-size: 12pt}
+	BODY { font-family: "arial", "sans-serif" }
+	TH { background-color: #CCCCFF; font-family: "arial" }
+	TD { font-family: "arial", "sans-serif"; font-size=10pt }
+	P { font-family: "arial", "sans-serif" }
+	PRE { font-family: "arial", "sans-serif" }
+	--></STYLE>
+</HEAD>
+<BODY>
+<H2>Using IBM ILOG CPLEX Optimizers with the .NET Framework</H2>
+This file describes how to use Microsoft
+Visual Studio 2010, 2012, and 2013 to:
+<UL>
+<LI>build and run the C# and Visual Basic .NET examples delivered with the CPLEX&reg; Optimizers.
+   (see <a href="c_cpp.html">c_cpp.html</a> for the C and C++ examples).
+</LI>
+<LI>create a project and link the target with the CPLEX Optimizers.
+</LI>
+</UL>
+<HR>
+<H3>CPLEX Installation Directory</H3>
+Throughout this document, the CPLEX installation folder is referred 
+to as <CODE>&lt;CPLEXDIR&gt;</CODE>.
+<P>
+For example, if CPLEX Studio has been installed in the folder <CODE>C:\Program Files\IBM\ILOG\CPLEX_Studio1262</CODE>,
+references to <CODE>&lt;CPLEXDIR&gt;\bin\x86_win32</CODE> represent
+<CODE>C:\Program Files\IBM\ILOG\CPLEX_Studio1262\cplex\bin\x86_win32</CODE>.
+<HR>
+<H3>Libraries</H3>
+The CPLEX Callable Library and .NET library are delivered as DLLs so
+they may be used with any of the library formats.  The Concert
+Technology .NET library is also delivered as a DLL.  All the DLLs are
+located in
+<CODE>&lt;CPLEXDIR&gt;\bin\x86_win32</CODE> or
+<CODE>&lt;CPLEXDIR&gt;\bin\x64_win64</CODE>.
+<HR>
+<H3>Building and Running CPLEX Examples</H3>
+The CPLEX .NET examples have all been gathered in two solutions, one
+for C# and one for Visual Basic.  The C++ libraries are delivered in
+several formats, and the .NET project and solution files, although
+independent of the C++ library formats, are located in each of the
+library format folders.  For this discussion, the folder
+<CODE>&lt;CPLEXDIR&gt;\examples\x86_windows_vs2010\stat_mta</CODE>
+will be used.  The instructions below are given for the C# examples.
+The steps to run the Visual Basic examples are similar, but use the
+solution file <CODE>examples.vb.net.sln</CODE> instead.  Be aware that
+the order of the instructions below is important.
+
+The solution and project files for Microsoft Visual Studio 2010, Win32
+or Win64, are in the <CODE>stat_mta</CODE> and <CODE>stat_mda</CODE>
+folders of:
+
+<ul>
+<li><CODE>&lt;examples&gt;\x86_windows_vs2010</CODE></li>
+<li><CODE>&lt;examples&gt;\x64_windows_vs2010</CODE></li>
+</ul>
+
+For Microsoft Visual Studio 2012 and 2013, Win32 or Win64, these can
+be found in the <CODE>stat_mda</CODE> folders of
+(note that <CODE>stat_mta</CODE> is <b>not</b> available for these
+environments):
+
+<ul>
+<li><CODE>&lt;examples&gt;\x86_windows_vs2012</CODE></li>
+<li><CODE>&lt;examples&gt;\x64_windows_vs2012</CODE></li>
+<li><CODE>&lt;examples&gt;\x86_windows_vs2013</CODE></li>
+<li><CODE>&lt;examples&gt;\x64_windows_vs2013</CODE></li>
+</ul>
+
+The following instructions are for using Microsoft Visual Studio 2010
+for Win32 (the instructions for the other environements are similar):
+
+<OL> <!-- ordered list describing task(s) -->
+<LI>Start Microsoft Visual Studio 2010.</LI>
+<P/>
+<LI>
+From the <B>File</B> menu, choose <B>Open</B> and <B>Project/Solution</B>.<BR>
+The <B>Open Project</B> dialog box appears.<BR>
+The default selection in the <B>Files Of Type</B> drop-down list
+is <CODE>Solution Files (.sln)</CODE>.<BR></LI>
+  <UL>
+  <LI>Select the folder
+    <CODE>&lt;CPLEXDIR&gt;\examples\x86_windows_vs2010\stat_mta</CODE>.
+  </LI>
+  <LI>Select the <CODE>examples.cs.net.sln</CODE> file and click <B>Open</B>.
+  </LI>
+  </UL>
+</LI>
+<P></P>
+<LI>
+To build only one example (for instance, <CODE>Blend</CODE>): 
+  <UL>
+  <LI>Select the <CODE>Blend</CODE> project in the <B>Solution Explorer</B>
+    window.
+  </LI>
+  <LI>From the <B>Build</B> menu, choose <B>Build Blend</B>.<BR>
+     Wait for the completion of the building process.
+  </LI>
+  </UL>
+</LI>
+<P></P>
+<LI>
+To build all of the examples:
+  <UL>
+  <LI>From the <B>Build</B> menu, choose <B>Build Solution</B><BR>
+      Wait for the completion of the building process.
+  </LI>
+  </UL>
+</LI>
+<P></P>
+<LI>
+To run an example (for instance, <CODE>Blend</CODE>):
+  <UL>
+  <LI>Start a command prompt window by running the Microsoft Visual Studio Command Prompt (2010).<BR>
+    In the window <B>Microsoft Visual Studio Command Prompt (2010)</B>:
+    <UL>
+    <LI>Type <CODE>set path=%path%;&lt;CPLEXDIR&gt;\bin\x86_win32</CODE> so that <CODE>
+        cplex1262.dll</CODE> is on the path.
+    </LI>
+    <LI>Type <CODE>&lt;CPLEXDIR&gt;\examples\x86_windows_vs2010\stat_mta\csbin\Blend.exe</CODE>. 
+        The result is then displayed.
+    </LI>
+    </UL>
+  </LI>
+  </UL>
+Note that the VB.NET executables will be in the folder 
+<CODE>vbbin</CODE> instead of <CODE>csbin</CODE>.
+</LI>
+</OL> <!-- closing the ordered list -->
+
+<HR>
+<H3>Building Your Own Project which Links with CPLEX</H3>
+Let's assume that you want to build a target named <CODE>Test.exe</CODE> and 
+have:
+<UL>
+<LI> a source file named <CODE>Test.cs</CODE>
+</LI>
+<LI> a folder where this file is located and which, for the sake of simplicity, 
+we'll refer to as <CODE>&lt;MYAPPDIR&gt;</CODE>.
+</LI>
+</UL>
+<P>
+One way to achieve that is to create a Solution named <CODE>Test.sln</CODE> as 
+described here. Be aware that the order of instructions is important.
+<OL>
+<LI>
+Start Microsoft Visual Studio 2010.
+</LI>
+<P></P>
+<LI>
+The first step is to build the <CODE>Test.sln</CODE> solution.<P></P>
+From the <B>File</B> menu, select <B>New</B>, and then <B>Project...</B>.<BR>
+<P></P>
+The <B>New Project</B> dialog box appears.
+  <UL>
+  <LI>In the <B>Project Types</B> pane, select <B>Visual C# Projects</B>.
+  </LI>
+  <LI>In the <B>Templates</B> pane, select the&nbsp;<B>Empty Project </B> icon.
+  </LI>
+  <LI>Fill in the project name (<CODE>Test</CODE>).
+  </LI>
+  <LI>If necessary, correct the location of the project (to <CODE>&lt;MYAPPDIR&gt;</CODE>)
+  </LI>
+  <LI>Click <b>OK</b>&nbsp;&nbsp;
+  </LI>
+  </UL>
+This creates a solution, <CODE>Test</CODE>, with a single project, <CODE>Test</CODE>.
+You can see the contents of the solution by selecting <B>Solution Explorer</B> in
+the <B>View</B> menu. 
+</LI>
+<P></P>
+<LI>
+To add your source file to the project, from the <B>Project</B> menu,
+choose <B>Add Existing Item...</B>
+  <UL>
+  <LI>Move to <CODE>&lt;MYAPPDIR&gt;</CODE> and select <CODE>Test.cs</CODE>.
+  </LI>
+  <LI>Click <b>Open</b>.<P></P>
+  </LI>
+  </UL>
+</LI>
+<P></P>
+<LI>
+Next, you have to set some options so that the project knows where to find the 
+CPLEX&nbsp;components.<P></P>
+From the&nbsp; <B>Project</B>&nbsp;menu, choose&nbsp; <B>Add Reference...</B>.<BR>
+The <B>Add Reference</B> dialog box appears.&nbsp;
+  <UL>
+  <LI>Browse to the folder <CODE>&lt;CPLEXDIR&gt;\bin\x86_win32</CODE>.
+    <UL>
+    <LI>Select <CODE>ILOG.CPLEX.dll</CODE> and click <B>Open</B>. 
+    </LI>
+    <LI>Select <CODE> ILOG.Concert.dll</CODE> and click <B>Open</B>. 
+    </LI>
+    </UL>
+  </LI>
+  <LI>
+  Click <B>OK</B> to close the dialog box.
+  </LI> 
+  </UL>
+</LI>
+<P></P>
+<LI>
+Next, you have to set the default project configuration.<P>
+        
+From the <B>Build</B> menu, select <B>Configuration Manager...</B>
+  <UL>
+  <LI>Select <B>Release</B> in the <B>Active Solution Configuration</B> drop-down list.</LI>
+  <LI>Click <B>Close</B>.</LI><P>
+  </UL>
+</LI>
+<P></P>
+<LI>
+Finally to build the project, from the <B>Build</B> menu, select <B>Build Solution</B><P></P>
+</LI>
+</OL>
+After completion of the build process, the target is created. 
+The full path of the <CODE>Test.exe</CODE> is
+<CODE>&lt;MYAPPDIR&gt;\Test\bin\Release\Test.exe</CODE> .
+<P>
+<HR>
+</BODY>
+</HTML>

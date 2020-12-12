@@ -1,0 +1,23 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Java template
+# Compiled class file
+/.idea
+/out
+/temp/*
+/deploy
+/lib/poi-4.1.2/docs
+
+
+*.iml
+*.txt
+*.MF
+
+~$Data.xlsx
+TAST.exe
+TAST.jar
+updater.jar
+
+/lib/cplex/examples/
+/lib/cplex/excel
+/lib/cplex/matlab
+/lib/cplex/python
