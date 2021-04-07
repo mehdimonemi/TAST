@@ -23,7 +23,6 @@ import java.util.TreeSet;
 
 import static company.windows.alert;
 
-
 public class Main {
     static int stationA;
     static int stationB;
@@ -127,7 +126,6 @@ public class Main {
             IloNumExpr constraint;
 
             for (Commodity value : commodities) {
-
                 stationA = value.getOriginId();
                 stationB = value.getDestinationId();
                 Commodity commodity = value;

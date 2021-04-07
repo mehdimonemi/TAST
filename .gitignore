@@ -11,6 +11,7 @@
 *.iml
 *.txt
 *.MF
+*.xlsx
 
 ~$Data.xlsx
 TAST.exe
