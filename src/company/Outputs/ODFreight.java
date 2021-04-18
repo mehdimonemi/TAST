@@ -16,12 +16,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import javax.print.attribute.AttributeSetUtilities;
-import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 
-import static company.Main.row;
 import static company.windows.alert;
 
 /**

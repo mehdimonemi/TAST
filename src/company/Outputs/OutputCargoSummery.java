@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static company.Main.*;
+import static company.Assignment.*;
 
 /**
  * Created by Monemi_M on 01/21/2018.

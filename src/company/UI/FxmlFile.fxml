@@ -32,7 +32,7 @@
                     </VBox.margin>
                 </Label>
                 <HBox alignment="CENTER" spacing="10">
-                    <JFXCheckBox text="Paths" fx:id="paths"/>
+                    <JFXCheckBox text="Paths" fx:id="path"/>
                     <JFXCheckBox text="Assignment" fx:id="assignment"/>
                     <JFXCheckBox text="Summery" fx:id="summery"/>
                     <JFXCheckBox text="CargoType" fx:id="cargoType"/>
@@ -57,8 +57,8 @@
     </HBox>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
         <JFXButton fx:id="selectDirectory" text="Select Directory"/>
-        <JFXButton fx:id="analyse" text="analyse/read Commodities"/>
-        <JFXButton fx:id="startProcess" text="Start Process"/>
+        <JFXButton fx:id="analyse" text="analyse/read Commodities" disable="true"/>
+        <JFXButton fx:id="startProcess" text="Start Process" disable="true"/>
     </HBox>
     <JFXTextArea fx:id="textArea" editable="false"/>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">

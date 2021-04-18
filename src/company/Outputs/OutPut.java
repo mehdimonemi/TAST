@@ -9,7 +9,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 import java.util.ArrayList;
 
-import static company.Main.cell;
+import static company.Assignment.cell;
 
 /**
  * Created by Monemi_M on 01/21/2018.

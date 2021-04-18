@@ -17,7 +17,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
-import static company.Main.*;
+import static company.Assignment.*;
 import static company.windows.alert;
 
 /**

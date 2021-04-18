@@ -9,7 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 
-import static company.Main.row;
+import static company.Assignment.row;
 
 /**
  * Created by Monemi_M on 01/21/2018.

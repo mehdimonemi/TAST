@@ -53,7 +53,7 @@ import java.util.Scanner;
 
 public class windows extends Application {
 
-    Main main = new Main();
+    company.Assignment assignment = new Assignment();
     public static Map<String, String> appVersion = new HashMap<>();
 
     Service commoditiesCheck;
@@ -510,11 +510,11 @@ public class windows extends Application {
 
                         if (isFileClose(outPutDirectory + "/Data.xlsx")) {
                             if (result[0][0].equals("0")) {
-                                main.readData(outPutDirectory);
+                                assignment.readData(outPutDirectory);
                                 result[0][0] = "1";//change to first row of commodities excel file
                             }
 
-                            result[0] = main.manageNames(outPutDirectory, result[0]);
+                            result[0] = assignment.manageNames(outPutDirectory, result[0]);
                             if (Integer.parseInt(result[0][0]) > 0)
                                 throw new NameException("Wrong Names");
                         } else {
@@ -554,37 +554,37 @@ public class windows extends Application {
                         processState = true;
                         if (isFileClose(outPutDirectory + outPutFileName)) {
 
-                            main.main(outPutDirectory, fullAssignment.isSelected());
+                            assignment.main(outPutDirectory, fullAssignment.isSelected());
 
                             fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
                             fileOut.flush();
                             fileOut.close();
 
                             if (Paths.isSelected()) {
-                                new OutputPaths(outPutDirectory + outPutFileName, main.commodities);
+                                new OutputPaths(outPutDirectory + outPutFileName, assignment.commodities);
                             }
                             if (Assignment.isSelected()) {
                                 new OutputAssignment(outPutDirectory + outPutFileName,
-                                        outPutDirectory + "/Data.xlsx", main.outputBlocks, main.blocks);
+                                        outPutDirectory + "/Data.xlsx", assignment.outputBlocks, assignment.blocks);
                             }
                             if (Summery.isSelected()) {
-                                new OutputSummery(outPutDirectory + outPutFileName, main.commodities);
+                                new OutputSummery(outPutDirectory + outPutFileName, assignment.commodities);
                             }
                             if (CargoType.isSelected()) {
                                 new OutputCargoType(outPutDirectory + outPutFileName,
-                                        main.commodities, main.mainCargoTypes, main.wagons);
+                                        assignment.commodities, assignment.mainCargoTypes, assignment.wagons);
                             }
                             if (CargoSummery.isSelected()) {
                                 new OutputCargoSummery(outPutDirectory + outPutFileName,
-                                        main.commodities, main.mainCargoTypes, main.wagons);
+                                        assignment.commodities, assignment.mainCargoTypes, assignment.wagons);
                             }
                             if (Districts.isSelected()) {
                                 new OutputDistricts(outPutDirectory + outPutFileName,
-                                        main.districts, main.commodities, periodField.getText());
+                                        assignment.districts, assignment.commodities, periodField.getText());
                             }
                             if (LoadUnloadOD.isSelected()) {
                                 new OutputLoadUnloadOD(
-                                        outPutDirectory + outPutFileName, main.districts, main.commodities);
+                                        outPutDirectory + outPutFileName, assignment.districts, assignment.commodities);
                             }
                         } else {
                             processState = false;

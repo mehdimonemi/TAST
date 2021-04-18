@@ -23,7 +23,7 @@ import java.util.TreeSet;
 
 import static company.windows.alert;
 
-public class Main {
+public class Assignment {
     static int stationA;
     static int stationB;
     public static XSSFRow row;
@@ -133,6 +133,9 @@ public class Main {
                 String b = commodity.getDestination();
                 if (a.equals(b) && !a.contains("سایر")) {
                     alert("same OD for " + commodity);
+                    commodity.setDistance(150);
+                    commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
+                    commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
                     continue;
                 }
 
