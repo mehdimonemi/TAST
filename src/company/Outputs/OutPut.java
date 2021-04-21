@@ -2,13 +2,13 @@ package company.Outputs;
 
 import company.Data.Station;
 
-import company.windows;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
 import java.util.ArrayList;
 
+import static company.App.mainController;
 import static company.Assignment.cell;
 
 /**
@@ -17,7 +17,6 @@ import static company.Assignment.cell;
 public class OutPut {
     public String successMassage;
     public String failMassage;
-
 
     public static XSSFCellStyle setStyle(XSSFWorkbook workbook, String fontName) {
         XSSFCellStyle style = workbook.createCellStyle();
@@ -97,10 +96,11 @@ public class OutPut {
     }
 
     public void successDisplay(){
-        windows.alert(successMassage);
+
+        mainController.alert(successMassage);
     }
 
     public void failDisplay(Exception e) {
-        windows.alert(failMassage, e);
+        mainController.alert(failMassage, e);
     }
 }

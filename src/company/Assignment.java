@@ -29,13 +29,13 @@ public class Assignment {
     public static XSSFRow row;
 
     ArrayList<Station> stations = null;
-    ArrayList<Block> blocks = null;
-    ArrayList<Block> outputBlocks = null;
-    ArrayList<Commodity> commodities = null;
+    public ArrayList<Block> blocks = null;
+    public ArrayList<Block> outputBlocks = null;
+    public ArrayList<Commodity> commodities = null;
     PathExceptions pathExceptions = null;
-    TreeSet<String> districts = null;
-    HashSet<String> wagons = null;
-    HashSet<String> mainCargoTypes = null;
+    public TreeSet<String> districts = null;
+    public HashSet<String> wagons = null;
+    public HashSet<String> mainCargoTypes = null;
     HashSet<String> cargoTypes = null;
     HashSet<String> transportKinds = null;
 

@@ -1,9 +1,12 @@
 package company.UI;
 
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.ULocale;
 import com.jfoenix.controls.*;
-import com.sun.javafx.application.PlatformImpl;
 import company.Assignment;
 import company.NameException;
+import company.Outputs.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,22 +16,32 @@ import javafx.collections.ObservableSet;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.awt.*;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Scanner;
 
-public class Controller {
+import static company.App.nameController;
+
+public class MainController {
+    @FXML
+    VBox primaryStage, dialogPan;
     @FXML
     private Label welcomeLabel, periodLabel;
     @FXML
-    private JFXCheckBox path, assignment, summery, cargoType, cargoSummery, districts, loadUnloadOD;
+    private JFXCheckBox pathCheckBox, assignmentCheckBox, summeryCheckBox,
+            cargoTypeCheckBox, cargoSummeryCheckBox, districtsCheckBox, loadUnloadODCheckBox;
     @FXML
     private JFXRadioButton fullAssignment, restrictedAssignment;
+
     @FXML
     private JFXTextField periodField;
     @FXML
@@ -36,7 +49,7 @@ public class Controller {
     @FXML
     private Tab assignmentTab, cargoForODTab;
     @FXML
-    private JFXTextArea textArea;
+    JFXTextArea textArea;
 
     Service commoditiesCheck;
     final String[][] commodityCheckResult = {new String[5]};//these string is for names check result. we will pass it throw many classes
@@ -62,16 +75,167 @@ public class Controller {
     @FXML
     private void initialize() {
         //we should configure each check box to know if its check or not
-        configureCheckBox(path);
-        configureCheckBox(assignment);
-        configureCheckBox(summery);
-        configureCheckBox(cargoType);
-        configureCheckBox(cargoSummery);
-        configureCheckBox(districts);
-        configureCheckBox(loadUnloadOD);
+        configureCheckBox(pathCheckBox);
+        configureCheckBox(assignmentCheckBox);
+        configureCheckBox(summeryCheckBox);
+        configureCheckBox(cargoTypeCheckBox);
+        configureCheckBox(cargoSummeryCheckBox);
+        configureCheckBox(districtsCheckBox);
+        configureCheckBox(loadUnloadODCheckBox);
 
         manageListeners();
         checkCommodities();
+        configureButtons();
+        processAssignment();
+    }
+
+    private void processAssignment() {
+        Service process = new Service() {
+            @Override
+            protected Task createTask() {
+                return new Task() {
+                    @Override
+                    protected Void call() throws Exception {
+
+                        ULocale locale = new ULocale("en_US@calendar=persian");
+
+                        Calendar calendar = Calendar.getInstance(locale);
+                        SimpleDateFormat df = new SimpleDateFormat("MM.dd - EEE, MMM - HH.mm.ss", locale);
+
+                        outPutFileName = "./Output " + df.format(calendar) + ".xlsx";
+
+                        processState = true;
+                        if (isFileClose(outPutDirectory + outPutFileName)) {
+
+                            assignmentClass.main(outPutDirectory, fullAssignment.isSelected());
+
+                            fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
+                            fileOut.flush();
+                            fileOut.close();
+
+                            if (pathCheckBox.isSelected()) {
+                                new OutputPaths(outPutDirectory + outPutFileName, assignmentClass.commodities);
+                            }
+                            if (assignmentCheckBox.isSelected()) {
+                                new OutputAssignment(outPutDirectory + outPutFileName,
+                                        outPutDirectory + "/Data.xlsx", assignmentClass.outputBlocks, assignmentClass.blocks);
+                            }
+                            if (summeryCheckBox.isSelected()) {
+                                new OutputSummery(outPutDirectory + outPutFileName, assignmentClass.commodities);
+                            }
+                            if (cargoTypeCheckBox.isSelected()) {
+                                new OutputCargoType(outPutDirectory + outPutFileName,
+                                        assignmentClass.commodities, assignmentClass.mainCargoTypes, assignmentClass.wagons);
+                            }
+                            if (cargoSummeryCheckBox.isSelected()) {
+                                new OutputCargoSummery(outPutDirectory + outPutFileName,
+                                        assignmentClass.commodities, assignmentClass.mainCargoTypes, assignmentClass.wagons);
+                            }
+                            if (districtsCheckBox.isSelected()) {
+                                new OutputDistricts(outPutDirectory + outPutFileName,
+                                        assignmentClass.districts, assignmentClass.commodities, periodField.getText());
+                            }
+                            if (loadUnloadODCheckBox.isSelected()) {
+                                new OutputLoadUnloadOD(
+                                        outPutDirectory + outPutFileName, assignmentClass.districts, assignmentClass.commodities);
+                            }
+                        } else {
+                            processState = false;
+                            alert("Excel File is open. Please close it first.");
+                        }
+                        System.gc();
+                        return null;
+                    }
+                };
+            }
+        };
+
+        startProcess.setOnAction(event -> {
+            if (!process.isRunning()) {
+                process.reset();
+                process.start();
+            }
+        });
+
+        process.setOnFailed(e -> {
+            alert("Process Failed\n----------------------------------------\n");
+            openOutput.setDisable(true);
+        });
+
+        process.setOnSucceeded(e -> {
+            if (!processState) {
+                alert("Process Failed\n----------------------------------------\n");
+                openOutput.setDisable(true);
+            } else {
+                alert("Process complete\n----------------------------------------\n");
+                openOutput.setDisable(false);
+            }
+        });
+
+        process.setOnRunning(eve -> {
+            alert("Wait please ---- I'm working...");
+            openOutput.setDisable(true);
+        });
+    }
+
+    private void configureButtons() {
+        selectDirectory.setOnAction(arg0 -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            //read path from last chosen directory in histoy
+            String path = "";
+            try {
+                Scanner scanner = new Scanner(new File("lib/bin"));
+                for (String line; scanner.hasNextLine() && (line = scanner.nextLine()) != null; ) {
+                    path = line;
+                }
+
+                File file = new File(path);
+                if (!file.exists() && !file.isDirectory())
+                    path = System.getProperty("user.home");
+
+                directoryChooser.setInitialDirectory(new File(path));
+            } catch (FileNotFoundException e) {
+                alert("problem with path file history");
+            }
+            try {
+                File dir = directoryChooser.showDialog(primaryStage.getScene().getWindow());
+                outPutDirectory = dir.getAbsolutePath();
+                BufferedWriter bufwriter = new BufferedWriter(new FileWriter("lib/bin"));
+                bufwriter.write(outPutDirectory);
+                bufwriter.close();
+            } catch (NullPointerException e) {
+                alert("No directory  Selected");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (outPutDirectory != null) {
+                ((SimpleBooleanProperty) directorySelected).set(true);
+            }
+        });
+
+        exit.setOnAction(event -> onExit());
+
+        openOutput.setOnAction(event -> {
+            try {
+                Desktop.getDesktop().open(new File(outPutDirectory + outPutFileName));
+            } catch (IOException e) {
+                alert("There is a problem with output file");
+            }
+        });
+
+        suggestions.setOnAction(event -> {
+            try {
+                Desktop.getDesktop().browse(new URI("https://mail.google.com/mail/?view=" +
+                        "cm&fs=1&to=mehdimonemi70@gmail.com&su=trafficAssignment&body="));
+            } catch (URISyntaxException | IOException e) {
+                alert("Can't send email");
+            }
+        });
+
+        ToggleGroup radioGroup = new ToggleGroup();
+        restrictedAssignment.setToggleGroup(radioGroup);
+        fullAssignment.setToggleGroup(radioGroup);
     }
 
     private void checkCommodities() {
@@ -231,51 +395,48 @@ public class Controller {
     }
 
     public void alert(String massage, Exception exception) {
-        PlatformImpl.runAndWait(() -> {
-            textArea.appendText("Something Wrong!" + "\n");
-            textArea.appendText(massage + "\n");
-            textArea.appendText(exception.getMessage() + "\n");
-        });
+        textArea.appendText("Something Wrong!" + "\n");
+        textArea.appendText(massage + "\n");
+        textArea.appendText(exception.getMessage() + "\n");
     }
 
     public void alert(String s) {
-        PlatformImpl.runAndWait(() -> textArea.appendText(s + "\n"));
+        textArea.appendText(s + "\n");
     }
 
     public void correctNamesDialog(String[] oldResult) {
+
         Dialog myDialog = new Dialog();
+        myDialog.initOwner(primaryStage.getScene().getWindow());
         myDialog.setTitle("wrong names for commodity " + oldResult[0] + ": ");
-        GridPane gridpane = new GridPane();
-        gridpane.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-        gridpane.setHgap(10);
-        gridpane.setVgap(10);
-        Label label1 = new Label("Origin");
-        Label label2 = new Label("Destination");
-        gridpane.add(label1, 1, 1);
-        gridpane.add(label2, 1, 2);
 
-        TextField textField1 = new TextField(oldResult[1]);
-        TextField textField2 = new TextField(oldResult[2]);
-        gridpane.add(textField1, 2, 1);
-        gridpane.add(textField2, 2, 2);
+        nameController.dialogOrigin.setText(oldResult[1]);
+        nameController.dialogDestination.setText(oldResult[2]);
 
-        Button login = new Button("Ok");
-        gridpane.add(login, 2, 3);
-        GridPane.setColumnSpan(login, 2);
-        login.setAlignment(Pos.CENTER_RIGHT);
-        login.setOnAction(event -> {
-
-            commodityCheckResult[0][1] = textField1.getText();
-            commodityCheckResult[0][2] = textField2.getText();
-            login.getScene().getWindow().hide();
+        myDialog.getDialogPane().setContent(dialogPan);
+        nameController.dialogOk.setOnAction(event -> {
+            commodityCheckResult[0][1] = nameController.dialogOrigin.getText();
+            commodityCheckResult[0][2] = nameController.dialogDestination.getText();
+            nameController.dialogOk.getScene().getWindow().hide();
             if (!commoditiesCheck.isRunning()) {
                 commoditiesCheck.reset();
                 commoditiesCheck.start();
             }
         });
 
-        myDialog.getDialogPane().setContent(gridpane);
         myDialog.show();
+    }
+
+    private void onExit() {
+        File folder1 = new File(".\\temp\\");
+        File[] listOfFiles1 = folder1.listFiles();
+        if (listOfFiles1 != null) {
+            for (File value : listOfFiles1) {
+                File file = new File(".\\temp\\" + value.getName());
+                file.delete();
+            }
+        }
+        System.exit(0);
     }
 
 }

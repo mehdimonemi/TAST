@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<VBox fx:id="dialogPan" spacing="20" nodeOrientation="RIGHT_TO_LEFT" prefHeight="400.0" prefWidth="600.0"
+      xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="company.UI.CorrectNameController">
+    <HBox>
+        <Label text="Origin"/>
+        <Label text="Destination"/>
+    </HBox>
+    <HBox>
+        <JFXTextField fx:id="dialogOrigin"/>
+        <JFXTextField fx:id="dialogDestination"/>
+    </HBox>
+    <HBox>
+        <JFXButton text="Ok" fx:id="dialogOk"/>
+        <JFXButton text="Stop" fx:id="dialogStop"/>
+    </HBox>
+
+</VBox>

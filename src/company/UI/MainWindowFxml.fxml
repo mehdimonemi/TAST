@@ -12,9 +12,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<VBox spacing="20" prefWidth="500.0" maxHeight="Infinity" alignment="CENTER"
+<VBox fx:id="primaryStage" spacing="20" prefWidth="500.0" maxHeight="Infinity" alignment="CENTER"
       xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="company.UI.Controller">
+      fx:controller="company.UI.MainController">
     <Label fx:id="welcomeLabel" alignment="CENTER" textAlignment="CENTER"
            maxWidth="Infinity"
            text="${'Hi there\nWelcome to Railway Network Assignment App'}">
@@ -32,15 +32,15 @@
                     </VBox.margin>
                 </Label>
                 <HBox alignment="CENTER" spacing="10">
-                    <JFXCheckBox text="Paths" fx:id="path"/>
-                    <JFXCheckBox text="Assignment" fx:id="assignment"/>
-                    <JFXCheckBox text="Summery" fx:id="summery"/>
-                    <JFXCheckBox text="CargoType" fx:id="cargoType"/>
+                    <JFXCheckBox text="Paths" fx:id="pathCheckBox"/>
+                    <JFXCheckBox text="Assignment" fx:id="assignmentCheckBox"/>
+                    <JFXCheckBox text="Summery" fx:id="summeryCheckBox"/>
+                    <JFXCheckBox text="CargoType" fx:id="cargoTypeCheckBox"/>
                 </HBox>
                 <HBox alignment="CENTER" spacing="10">
-                    <JFXCheckBox text="CargoSummery" fx:id="cargoSummery"/>
-                    <JFXCheckBox text="Districts" fx:id="districts"/>
-                    <JFXCheckBox text="LoadUnloadOD" fx:id="loadUnloadOD"/>
+                    <JFXCheckBox text="CargoSummery" fx:id="cargoSummeryCheckBox"/>
+                    <JFXCheckBox text="Districts" fx:id="districtsCheckBox"/>
+                    <JFXCheckBox text="LoadUnloadOD" fx:id="loadUnloadODCheckBox"/>
                 </HBox>
             </VBox>
         </Tab>
@@ -60,7 +60,11 @@
         <JFXButton fx:id="analyse" text="analyse/read Commodities" disable="true"/>
         <JFXButton fx:id="startProcess" text="Start Process" disable="true"/>
     </HBox>
-    <JFXTextArea fx:id="textArea" editable="false"/>
+    <JFXTextArea fx:id="textArea" editable="false">
+        <VBox.margin>
+            <Insets left="20" right="20"></Insets>
+        </VBox.margin>
+    </JFXTextArea>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
         <JFXButton fx:id="exit" text="Exit"/>
         <JFXButton fx:id="openOutput" text="Open Output File"/>

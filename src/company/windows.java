@@ -729,9 +729,5 @@ public class windows extends Application {
             //check and do update
         }
     }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
 
