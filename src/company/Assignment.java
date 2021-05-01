@@ -28,11 +28,11 @@ public class Assignment {
     static int stationB;
     public static XSSFRow row;
 
-    ArrayList<Station> stations = null;
+    public ArrayList<Station> stations = null;
     public ArrayList<Block> blocks = null;
     public ArrayList<Block> outputBlocks = null;
     public ArrayList<Commodity> commodities = null;
-    PathExceptions pathExceptions = null;
+    public PathExceptions pathExceptions = null;
     public TreeSet<String> districts = null;
     public HashSet<String> wagons = null;
     public HashSet<String> mainCargoTypes = null;

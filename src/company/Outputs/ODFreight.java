@@ -28,13 +28,14 @@ public class ODFreight extends OutPut {
 
     private ArrayList<Block> givenPathBlocks;
 
-    public ODFreight(String output, ArrayList<Block> blocks, ArrayList<Commodity> commodities, PathExceptions pathExceptions
-            , ArrayList<Station> stations) {
+    public ODFreight(String output, ArrayList<Block> blocks,
+                     ArrayList<Commodity> commodities, PathExceptions pathExceptions,
+                     ArrayList<Station> stations) {
 
         int stationA = 429;
         String a = "بافق";
         int stationB = 126;
-        String b = "میرجاوه";
+        String b = "زرین شهر";
         //first of all we need our path
         //Now we Start main goal
         FileInputStream inFile;
@@ -43,7 +44,7 @@ public class ODFreight extends OutPut {
         setMassageForWritingFile("OD Freight");
 
         try {
-            inFile = new FileInputStream(new File(output));
+            inFile = new FileInputStream(output);
             try {
                 workBook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -138,7 +139,7 @@ public class ODFreight extends OutPut {
             setCell(sheet.getRow(5), 2, wagonOperation, style);
             setCell(sheet.getRow(6), 2, tonKilometerPlan, style);
             setCell(sheet.getRow(7), 2, tonKilometerOperation, style);
-            outFile = new FileOutputStream(new File(output));
+            outFile = new FileOutputStream(output);
             workBook.write(outFile);
 
             outFile.flush();
@@ -147,18 +148,14 @@ public class ODFreight extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }
 
-    public void solve(int stationA, int stationB, String a, String b, ArrayList<Block> blocks, ArrayList<Commodity> commodities, PathExceptions pathExceptions, ArrayList<Station> stations) {
+    public void solve(int stationA, int stationB, String a, String b,
+                      ArrayList<Block> blocks, ArrayList<Commodity> commodities, PathExceptions pathExceptions,
+                      ArrayList<Station> stations) {
         try {
             IloCplex model = new IloCplex();
             IloNumVar[] X = new IloNumVar[blocks.size()];
@@ -216,9 +213,9 @@ public class ODFreight extends OutPut {
             model.addMinimize(goalFunction);
 
             // constraints
-            for (int i = 0; i < stations.size(); i++) {
+            for (Station station : stations) {
                 constraint = model.constant(0);
-                if (stations.get(i).getId() == stationA) {
+                if (station.getId() == stationA) {
                     for (int j = 0; j < blocks.size(); j++) {
                         if (stationA == blocks.get(j).getOriginId()) {
                             constraint = model.sum(constraint, X[j]);
@@ -228,7 +225,7 @@ public class ODFreight extends OutPut {
                         }
                     }
                     model.addEq(constraint, 1);
-                } else if (stations.get(i).getId() == (stationB)) {
+                } else if (station.getId() == (stationB)) {
                     for (int j = 0; j < blocks.size(); j++) {
                         if (stationB == blocks.get(j).getOriginId()) {
                             constraint = model.sum(constraint, X[j]);
@@ -240,10 +237,10 @@ public class ODFreight extends OutPut {
                     model.addEq(constraint, -1);
                 } else {
                     for (int j = 0; j < blocks.size(); j++) {
-                        if (stations.get(i).getId() == (blocks.get(j).getOriginId())) {
+                        if (station.getId() == (blocks.get(j).getOriginId())) {
                             constraint = model.sum(constraint, X[j]);
                         }
-                        if (stations.get(i).getId() == (blocks.get(j).getDestinationId())) {
+                        if (station.getId() == (blocks.get(j).getDestinationId())) {
                             constraint = model.sum(constraint, model.negative(X[j]));
                         }
                     }

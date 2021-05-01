@@ -1,0 +1,74 @@
+.root {
+    -fx-font-size: 12;
+    -jfx-primary-color: #d24726;
+    -jfx-light-primary-color: #f0623e;
+    -jfx-dark-primary-color: #b83d1f;
+    /*-fx-focus-color: rgb(222, 49, 15);*/
+    -jfx-secondary-color: #26b0d2;
+    -jfx-light-secondary-color: #e2f7fe;
+    -jfx-dark-secondary-color: #056471;
+    -fx-button : #b0d226;
+    -fx-background-color: -jfx-light-secondary-color;
+}
+
+/*!********************************************************************************/
+/**                                                                             **/
+/** JFX Tab Pane                                                                **/
+/**                                                                             **/
+.jfx-tab-pane .headers-region {
+    -fx-background-color: -jfx-primary-color;
+    -fx-focus-color: -jfx-light-primary-color;
+}
+
+.jfx-tab-pane .tab-header-background {
+    -fx-background-color: -jfx-primary-color;
+}
+
+.jfx-tab-pane .tab-selected-line {
+    -fx-stroke: -jfx-secondary-color;
+
+}
+
+.jfx-tab-pane .tab .tab-label {
+    -fx-font-size: 12.5;
+}
+
+.jfx-tab-pane .tab-header-area .jfx-rippler {
+    -jfx-rippler-fill: -jfx-light-secondary-color;
+}
+
+.tab-selected-line {
+    -fx-background-color: -jfx-secondary-color;
+}
+
+/*******************************************************************************!*/
+
+.jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color:-fx-button;
+    -fx-text-fill: #000000;
+}
+
+.button {
+    -fx-font-size: 12;
+    -fx-pref-width: 120;
+    -fx-text-alignment: center;
+}
+
+.text-area {
+    -fx-accent: rgb(100, 178, 234);
+    -fx-font-size: 12;
+    -fx-background-color: #ffffff;
+
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-border-insets: 0;
+    -fx-border-radius: 2;
+    -fx-border-color: #0e5006;
+}
+
+.text-field {
+    -fx-accent: rgb(100, 178, 234);
+    -fx-min-height: 30;
+    -fx-max-height: 30;
+}

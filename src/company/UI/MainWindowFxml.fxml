@@ -13,13 +13,14 @@
 <?import javafx.geometry.Insets?>
 
 <VBox fx:id="primaryStage" spacing="20" prefWidth="500.0" maxHeight="Infinity" alignment="CENTER"
+      stylesheets="/company/UI/MainStyle.css"
       xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="company.UI.MainController">
     <Label fx:id="welcomeLabel" alignment="CENTER" textAlignment="CENTER"
            maxWidth="Infinity"
            text="${'Hi there\nWelcome to Railway Network Assignment App'}">
         <VBox.margin>
-            <Insets top="20"></Insets>
+            <Insets top="20"/>
         </VBox.margin>
     </Label>
     <JFXTabPane>
@@ -28,7 +29,7 @@
                 <Label alignment="CENTER" prefWidth="500.0" maxWidth="Infinity"
                        text="Which output do u want?">
                     <VBox.margin>
-                        <Insets top="20"></Insets>
+                        <Insets top="20"/>
                     </VBox.margin>
                 </Label>
                 <HBox alignment="CENTER" spacing="10">
@@ -45,6 +46,20 @@
             </VBox>
         </Tab>
         <Tab text="Cargo for OD" fx:id="cargoForODTab">
+            <VBox spacing="10" prefWidth="500">
+                <Label alignment="CENTER" prefWidth="500.0" maxWidth="Infinity"
+                       text="Report the amount of cargo for this origin/destination:">
+                    <VBox.margin>
+                        <Insets top="20"/>
+                    </VBox.margin>
+                </Label>
+                <HBox alignment="CENTER">
+                    <Label text="Origin"/>
+                    <JFXTextField fx:id="cargoOrigin"/>
+                    <Label text="Destination"/>
+                    <JFXTextField fx:id="cargoDestination"/>
+                </HBox>
+            </VBox>
         </Tab>
     </JFXTabPane>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
@@ -57,20 +72,20 @@
     </HBox>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
         <JFXButton fx:id="selectDirectory" text="Select Directory"/>
-        <JFXButton fx:id="analyse" text="analyse/read Commodities" disable="true"/>
+        <JFXButton fx:id="analyse" text="Analyse/Read" disable="true"/>
         <JFXButton fx:id="startProcess" text="Start Process" disable="true"/>
     </HBox>
     <JFXTextArea fx:id="textArea" editable="false">
         <VBox.margin>
-            <Insets left="20" right="20"></Insets>
+            <Insets left="20" right="20"/>
         </VBox.margin>
     </JFXTextArea>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
         <JFXButton fx:id="exit" text="Exit"/>
         <JFXButton fx:id="openOutput" text="Open Output File"/>
-        <JFXButton fx:id="suggestions" text="Send me Suggestions"/>
+        <JFXButton fx:id="suggestions" text="Any Suggestions?"/>
         <VBox.margin>
-            <Insets bottom="10"></Insets>
+            <Insets bottom="10"/>
         </VBox.margin>
     </HBox>
 </VBox>

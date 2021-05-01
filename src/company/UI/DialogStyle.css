@@ -1,0 +1,25 @@
+#dialogPan {
+    -fx-font-size: 12;
+    -jfx-secondary-color: #26b0d2;
+    -jfx-light-secondary-color: #e2f7fe;
+    -jfx-dark-secondary-color: #056471;
+    -fx-button : #b0d226;
+}
+
+.jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color:-fx-button;
+    -fx-text-fill: #000000;
+}
+.button {
+    -fx-pref-width: 80;
+    -fx-text-alignment: center;
+}
+
+.text-field {
+    -fx-font-family: "B Nazanin";
+    -fx-font-size: 16;
+    -fx-accent: rgb(100, 178, 234);
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+}

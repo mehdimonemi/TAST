@@ -16,12 +16,13 @@ import javafx.collections.ObservableSet;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
 
 import java.awt.*;
 import java.io.*;
@@ -29,11 +30,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Scanner;
 
-import static company.App.nameController;
+import static company.App.dialogController;
 
 public class MainController {
     @FXML
-    VBox primaryStage, dialogPan;
+    VBox primaryStage;
     @FXML
     private Label welcomeLabel, periodLabel;
     @FXML
@@ -41,9 +42,8 @@ public class MainController {
             cargoTypeCheckBox, cargoSummeryCheckBox, districtsCheckBox, loadUnloadODCheckBox;
     @FXML
     private JFXRadioButton fullAssignment, restrictedAssignment;
-
     @FXML
-    private JFXTextField periodField;
+    private JFXTextField periodField, cargoOrigin, cargoDestination;
     @FXML
     private JFXButton selectDirectory, analyse, startProcess, exit, openOutput, suggestions;
     @FXML
@@ -51,7 +51,9 @@ public class MainController {
     @FXML
     JFXTextArea textArea;
 
-    Service commoditiesCheck;
+    Dialog<Boolean> correctNameDialog;
+
+    public Service commoditiesCheck;
     final String[][] commodityCheckResult = {new String[5]};//these string is for names check result. we will pass it throw many classes
 
     String outPutDirectory = null;
@@ -68,6 +70,7 @@ public class MainController {
     ObservableBooleanValue checkBoxSelected = new SimpleBooleanProperty(false);
     ObservableBooleanValue directorySelected = new SimpleBooleanProperty(false);
     ObservableBooleanValue analyseInputs = new SimpleBooleanProperty(false);
+//    ObservableBooleanValue cargoTabSelected = new SimpleBooleanProperty(false);
 
     private final int maxNumSelected = 3;
     public FileOutputStream fileOut = null;
@@ -106,38 +109,50 @@ public class MainController {
 
                         processState = true;
                         if (isFileClose(outPutDirectory + outPutFileName)) {
+                            if (assignmentTab.isSelected()) {
 
-                            assignmentClass.main(outPutDirectory, fullAssignment.isSelected());
+                                assignmentClass.main(outPutDirectory, fullAssignment.isSelected());
 
-                            fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
-                            fileOut.flush();
-                            fileOut.close();
+                                fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
+                                fileOut.flush();
+                                fileOut.close();
 
-                            if (pathCheckBox.isSelected()) {
-                                new OutputPaths(outPutDirectory + outPutFileName, assignmentClass.commodities);
-                            }
-                            if (assignmentCheckBox.isSelected()) {
-                                new OutputAssignment(outPutDirectory + outPutFileName,
-                                        outPutDirectory + "/Data.xlsx", assignmentClass.outputBlocks, assignmentClass.blocks);
-                            }
-                            if (summeryCheckBox.isSelected()) {
-                                new OutputSummery(outPutDirectory + outPutFileName, assignmentClass.commodities);
-                            }
-                            if (cargoTypeCheckBox.isSelected()) {
-                                new OutputCargoType(outPutDirectory + outPutFileName,
-                                        assignmentClass.commodities, assignmentClass.mainCargoTypes, assignmentClass.wagons);
-                            }
-                            if (cargoSummeryCheckBox.isSelected()) {
-                                new OutputCargoSummery(outPutDirectory + outPutFileName,
-                                        assignmentClass.commodities, assignmentClass.mainCargoTypes, assignmentClass.wagons);
-                            }
-                            if (districtsCheckBox.isSelected()) {
-                                new OutputDistricts(outPutDirectory + outPutFileName,
-                                        assignmentClass.districts, assignmentClass.commodities, periodField.getText());
-                            }
-                            if (loadUnloadODCheckBox.isSelected()) {
-                                new OutputLoadUnloadOD(
-                                        outPutDirectory + outPutFileName, assignmentClass.districts, assignmentClass.commodities);
+                                if (pathCheckBox.isSelected()) {
+                                    new ODFreight(outPutDirectory + outPutFileName, assignmentClass.blocks,
+                                            assignmentClass.commodities, assignmentClass.pathExceptions,
+                                            assignmentClass.stations);
+                                }
+                                if (assignmentCheckBox.isSelected()) {
+                                    new OutputAssignment(outPutDirectory + outPutFileName,
+                                            outPutDirectory + "/Data.xlsx",
+                                            assignmentClass.outputBlocks, assignmentClass.blocks);
+                                }
+                                if (summeryCheckBox.isSelected()) {
+                                    new OutputSummery(outPutDirectory + outPutFileName,
+                                            assignmentClass.commodities);
+                                }
+                                if (cargoTypeCheckBox.isSelected()) {
+                                    new OutputCargoType(outPutDirectory + outPutFileName,
+                                            assignmentClass.commodities, assignmentClass.mainCargoTypes,
+                                            assignmentClass.wagons);
+                                }
+                                if (cargoSummeryCheckBox.isSelected()) {
+                                    new OutputCargoSummery(outPutDirectory + outPutFileName,
+                                            assignmentClass.commodities, assignmentClass.mainCargoTypes,
+                                            assignmentClass.wagons);
+                                }
+                                if (districtsCheckBox.isSelected()) {
+                                    new OutputDistricts(outPutDirectory + outPutFileName,
+                                            assignmentClass.districts, assignmentClass.commodities,
+                                            periodField.getText());
+                                }
+                                if (loadUnloadODCheckBox.isSelected()) {
+                                    new OutputLoadUnloadOD(
+                                            outPutDirectory + outPutFileName,
+                                            assignmentClass.districts, assignmentClass.commodities);
+                                }
+                            } else {
+
                             }
                         } else {
                             processState = false;
@@ -275,7 +290,7 @@ public class MainController {
                 };
             }
         };
-        commoditiesCheck.setOnFailed(event -> correctNamesDialog(commodityCheckResult[0]));
+        commoditiesCheck.setOnFailed(event -> loadDialog(commodityCheckResult[0]));
         commoditiesCheck.setOnSucceeded(event -> ((SimpleBooleanProperty) analyseInputs).set(true));
 
         analyse.setOnAction(event -> {
@@ -287,7 +302,7 @@ public class MainController {
     }
 
     private void manageListeners() {
-        //A listener for periodField which only numbers characters are acceptable
+        //A listener for periodField which only numbers characters are allowed
         periodField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 periodField.setText(newValue.replaceAll("[^\\d]", ""));
@@ -301,7 +316,7 @@ public class MainController {
         3-input file be analysed with analyse button
         */
         startProcessStatus.addListener((obs, oldSelectedCount, newSelectedCount) -> {
-            startProcess.setDisable(newSelectedCount.intValue() != 3);
+            startProcess.setDisable(newSelectedCount.intValue() == 3);
             System.gc();
         });
 
@@ -325,7 +340,7 @@ public class MainController {
             System.gc();
         });
 
-        //A listener for knowing whether directory is selected or not.
+        //A listener for knowing a checkBox is selected or unselected
         checkBoxSelected.addListener((obs, isFalse, isTrue) -> {
             if (isTrue) {
                 startProcessConditions.add(checkBoxSelected);
@@ -346,6 +361,7 @@ public class MainController {
             }
         });
 
+
         //A listener for knowing whether input analyse has been successful or not.
         analyseInputs.addListener((obs, isFalse, isTrue) -> {
             if (isTrue) {
@@ -354,6 +370,12 @@ public class MainController {
                 startProcessConditions.remove(analyseInputs);
             }
         });
+
+//        cargoTabSelected.addListener((obs, isFalse, isTrue) -> {
+//            if (isTrue) {
+//                startProcessConditions.add(cargoTabSelected);
+//            } else startProcessConditions.remove(cargoTabSelected);
+//        });
     }
 
     public void configureCheckBox(JFXCheckBox checkBox) {
@@ -404,27 +426,23 @@ public class MainController {
         textArea.appendText(s + "\n");
     }
 
-    public void correctNamesDialog(String[] oldResult) {
+    public void loadDialog(String[] oldResult) {
+        correctNameDialog = new Dialog<Boolean>();
+        correctNameDialog.initOwner(primaryStage.getScene().getWindow());
+        correctNameDialog.setTitle("wrong names for commodity " + oldResult[0] + ": ");
 
-        Dialog myDialog = new Dialog();
-        myDialog.initOwner(primaryStage.getScene().getWindow());
-        myDialog.setTitle("wrong names for commodity " + oldResult[0] + ": ");
+        //dummy button for working X(close)
+        correctNameDialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        Node closeButton = correctNameDialog.getDialogPane().lookupButton(ButtonType.CLOSE);
+        closeButton.managedProperty().bind(closeButton.visibleProperty());
+        closeButton.setVisible(false);
 
-        nameController.dialogOrigin.setText(oldResult[1]);
-        nameController.dialogDestination.setText(oldResult[2]);
-
-        myDialog.getDialogPane().setContent(dialogPan);
-        nameController.dialogOk.setOnAction(event -> {
-            commodityCheckResult[0][1] = nameController.dialogOrigin.getText();
-            commodityCheckResult[0][2] = nameController.dialogDestination.getText();
-            nameController.dialogOk.getScene().getWindow().hide();
-            if (!commoditiesCheck.isRunning()) {
-                commoditiesCheck.reset();
-                commoditiesCheck.start();
-            }
-        });
-
-        myDialog.show();
+        correctNameDialog.initModality(Modality.APPLICATION_MODAL);
+        dialogController.dialogOrigin.setText(oldResult[1]);
+        dialogController.dialogDestination.setText(oldResult[2]);
+        correctNameDialog.setOnCloseRequest(Event -> dialogController.onStop());
+        correctNameDialog.getDialogPane().setContent(dialogController.dialogPan);
+        correctNameDialog.show();
     }
 
     private void onExit() {
