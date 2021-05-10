@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.util.Scanner;
 
 import static company.App.dialogController;
+import static company.App.mainController;
 
 public class MainController {
     @FXML
@@ -45,7 +46,7 @@ public class MainController {
     @FXML
     private JFXTextField periodField, cargoOrigin, cargoDestination;
     @FXML
-    private JFXButton selectDirectory, analyse, startProcess, exit, openOutput, suggestions;
+    private JFXButton selectDirectory, analyse, startProcess, exit, openOutput, suggestions, dialogStop;
     @FXML
     private Tab assignmentTab, cargoForODTab;
     @FXML
@@ -70,7 +71,7 @@ public class MainController {
     ObservableBooleanValue checkBoxSelected = new SimpleBooleanProperty(false);
     ObservableBooleanValue directorySelected = new SimpleBooleanProperty(false);
     ObservableBooleanValue analyseInputs = new SimpleBooleanProperty(false);
-//    ObservableBooleanValue cargoTabSelected = new SimpleBooleanProperty(false);
+    ObservableBooleanValue cargoTabSelected = new SimpleBooleanProperty(false);
 
     private final int maxNumSelected = 3;
     public FileOutputStream fileOut = null;
@@ -107,7 +108,6 @@ public class MainController {
 
                         outPutFileName = "./Output " + df.format(calendar) + ".xlsx";
 
-                        processState = true;
                         if (isFileClose(outPutDirectory + outPutFileName)) {
                             if (assignmentTab.isSelected()) {
 
@@ -118,9 +118,7 @@ public class MainController {
                                 fileOut.close();
 
                                 if (pathCheckBox.isSelected()) {
-                                    new ODFreight(outPutDirectory + outPutFileName, assignmentClass.blocks,
-                                            assignmentClass.commodities, assignmentClass.pathExceptions,
-                                            assignmentClass.stations);
+                                    new OutputPaths(outPutDirectory + outPutFileName, assignmentClass.commodities);
                                 }
                                 if (assignmentCheckBox.isSelected()) {
                                     new OutputAssignment(outPutDirectory + outPutFileName,
@@ -150,6 +148,12 @@ public class MainController {
                                     new OutputLoadUnloadOD(
                                             outPutDirectory + outPutFileName,
                                             assignmentClass.districts, assignmentClass.commodities);
+                                }
+                                if (cargoForODTab.isSelected()) {
+                                    new ODFreight(
+                                            outPutDirectory + outPutFileName, assignmentClass.blocks,
+                                            assignmentClass.commodities, assignmentClass.pathExceptions,
+                                            assignmentClass.stations);
                                 }
                             } else {
 
@@ -255,15 +259,11 @@ public class MainController {
 
     private void checkCommodities() {
         //blow is our commoditiesCheck result:
-        //excel row id
-        //origin
-        //destination
-
         commodityCheckResult[0][0] = "0";//0 means its first run and we should read data. also means app had read all names
-        commodityCheckResult[0][1] = "";
-        commodityCheckResult[0][2] = "";
-        commodityCheckResult[0][3] = "";
-        commodityCheckResult[0][4] = "";
+        commodityCheckResult[0][1] = "";//correct origin name that we get it from correct name dialog
+        commodityCheckResult[0][2] = "";//correct destination name that we get it from correct name dialog
+        commodityCheckResult[0][3] = "";//original origin name that might be incorrect
+        commodityCheckResult[0][4] = "";//original destination name that might be incorrect
         commoditiesCheck = new Service() {
             @Override
             public Task createTask() {
@@ -311,12 +311,12 @@ public class MainController {
 
         /*
         StartProcess button is conditional and for not being disable 3 conditions should be meet (startProcessConditions):
-        1-checkboxes selected
+        1-checkboxes selected or cargoForODTab selected
         2-directory selected
         3-input file be analysed with analyse button
         */
         startProcessStatus.addListener((obs, oldSelectedCount, newSelectedCount) -> {
-            startProcess.setDisable(newSelectedCount.intValue() == 3);
+            startProcess.setDisable(newSelectedCount.intValue() != 3);
             System.gc();
         });
 
@@ -340,7 +340,7 @@ public class MainController {
             System.gc();
         });
 
-        //A listener for knowing a checkBox is selected or unselected
+        //a listener to add or remove the status of checkBox to the start process conditions
         checkBoxSelected.addListener((obs, isFalse, isTrue) -> {
             if (isTrue) {
                 startProcessConditions.add(checkBoxSelected);
@@ -349,7 +349,7 @@ public class MainController {
             }
         });
 
-        //A listener for knowing whether directory is selected or not.
+        //a listener to add or remove the status of directory to the start process conditions
         // of course the result will affect on analyse button.
         directorySelected.addListener((obs, isFalse, isTrue) -> {
             if (isTrue) {
@@ -362,7 +362,7 @@ public class MainController {
         });
 
 
-        //A listener for knowing whether input analyse has been successful or not.
+        //a listener to add or remove the status of input analyse to the start process conditions
         analyseInputs.addListener((obs, isFalse, isTrue) -> {
             if (isTrue) {
                 startProcessConditions.add(analyseInputs);
@@ -371,11 +371,17 @@ public class MainController {
             }
         });
 
-//        cargoTabSelected.addListener((obs, isFalse, isTrue) -> {
-//            if (isTrue) {
-//                startProcessConditions.add(cargoTabSelected);
-//            } else startProcessConditions.remove(cargoTabSelected);
-//        });
+        //Check weather CargoForODTab selected or not
+        cargoForODTab.selectedProperty().addListener((obs, isFalse, isTrue) -> {
+            ((SimpleBooleanProperty) checkBoxSelected).set(isTrue);
+        });
+
+        //a listener to add or remove the status of cargoTab to the start process conditions
+        cargoTabSelected.addListener((obs, isFalse, isTrue) -> {
+            if (isTrue) {
+                startProcessConditions.add(cargoTabSelected);
+            } else startProcessConditions.remove(cargoTabSelected);
+        });
     }
 
     public void configureCheckBox(JFXCheckBox checkBox) {
@@ -440,7 +446,12 @@ public class MainController {
         correctNameDialog.initModality(Modality.APPLICATION_MODAL);
         dialogController.dialogOrigin.setText(oldResult[1]);
         dialogController.dialogDestination.setText(oldResult[2]);
-        correctNameDialog.setOnCloseRequest(Event -> dialogController.onStop());
+        correctNameDialog.setOnCloseRequest(Event -> {
+            dialogController.onStop();
+            if (!mainController.commoditiesCheck.isRunning()) {
+                mainController.alert("Correcting name process: stopped");
+            }
+        });
         correctNameDialog.getDialogPane().setContent(dialogController.dialogPan);
         correctNameDialog.show();
     }

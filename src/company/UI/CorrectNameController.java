@@ -41,7 +41,6 @@ public class CorrectNameController {
     }
 
     public void onStop() {
-        mainController.correctNameDialog.setResult(true);
         mainController.correctNameDialog.close();
         if (!mainController.commoditiesCheck.isRunning()) {
             mainController.commoditiesCheck.reset();

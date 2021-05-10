@@ -11,6 +11,14 @@
     -fx-background-color: -jfx-light-secondary-color;
 }
 
+#dialogPan {
+    -fx-font-size: 12;
+    -jfx-secondary-color: #26b0d2;
+    -jfx-light-secondary-color: #e2f7fe;
+    -jfx-dark-secondary-color: #056471;
+    -fx-button : #b0d226;
+}
+
 /*!********************************************************************************/
 /**                                                                             **/
 /** JFX Tab Pane                                                                **/

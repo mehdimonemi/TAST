@@ -545,6 +545,8 @@ public class Assignment {
 
             //update excel
             for (int i = 0; i < sheet1.getLastRowNum(); i++) {
+                boolean finishedWithOrigin = false;
+                boolean finishedWithDestination = false;
                 XSSFRow row = sheet1.getRow(i + 1);
                 if (row.getCell(1).getStringCellValue().equals(correctOriginName)) {
                     boolean check = true;
@@ -554,8 +556,8 @@ public class Assignment {
                     }
                     if (check) {
                         row.createCell(row.getLastCellNum()).setCellValue(result[3]);
-                        break;
                     }
+                    finishedWithOrigin = true;
                 }
                 if (row.getCell(1).getStringCellValue().equals(correctDestinationName)) {
                     boolean check = true;
@@ -565,9 +567,11 @@ public class Assignment {
                     }
                     if (check) {
                         row.createCell(row.getLastCellNum()).setCellValue(result[4]);
-                        break;
                     }
+                    finishedWithDestination = true;
                 }
+                if (finishedWithDestination && finishedWithOrigin)
+                    break;
             }
 
             //station names
