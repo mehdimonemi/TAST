@@ -8,8 +8,10 @@ import java.util.ArrayList;
  */
 public class Commodity {
 
+    public static int commodityCounter=1;
+
     double howMuchIsAllowed = 1;
-    private int id;
+    private int tag;
     private String origin;
     private String destination;
     private int originId;
@@ -35,10 +37,10 @@ public class Commodity {
 
     private int check = 0;
 
-    public Commodity(int id, String origin, String destination, double volumeWagon, double volumeTon,
+    public Commodity(String origin, String destination, double volumeWagon, double volumeTon,
                      double planWagon, double planTon, String wagonType, String kind, String mainCargoType, String cargoType,
                      ArrayList<Station> stations) {
-        this.id = id;
+        this.tag =commodityCounter++;
         this.origin = origin;
         this.destination = destination;
         setOriginId(stations);
@@ -67,12 +69,12 @@ public class Commodity {
         this.howMuchIsAllowed = howMuchIsAllowed;
     }
 
-    public int getId() {
-        return id;
+    public int getTag() {
+        return tag;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setTag(int tag) {
+        this.tag = tag;
     }
 
     public String getOrigin() {
@@ -256,13 +258,6 @@ public class Commodity {
 
     @Override
     public String toString() {
-        return "Commodity{" +
-                "id=" + id +
-                ", origin='" + origin + '\'' +
-                ", destination='" + destination + '\'' +
-                ", district='" + originDistrict + '\'' +
-                ", planTon='" + planTon + '\'' +
-                ", tonKilometerPlan='" + tonKilometerPlan + '\'' +
-                '}';
+        return "Commodity "+ tag +" {" + origin + "--" + destination + ", Ton='" + planTon + "}";
     }
 }

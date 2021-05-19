@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.Region?>
 <VBox fx:id="primaryStage" spacing="20" prefWidth="500.0" maxHeight="Infinity" alignment="CENTER"
       stylesheets="/company/UI/MainStyle.css"

@@ -24,7 +24,7 @@ public class OutputLoadUnloadOD extends OutPut {
         FileOutputStream outFile;
         XSSFWorkbook workbook;
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -44,8 +44,7 @@ public class OutputLoadUnloadOD extends OutPut {
 
             //labeling first row
             int z = 1;
-            for (Iterator<String> it1 = districts.iterator(); it1.hasNext(); ) {
-                String a = it1.next();
+            for (String a : districts) {
                 setCell(row1, z, a, style);
                 setCell(row2, z, a, style);
                 z++;
@@ -56,18 +55,16 @@ public class OutputLoadUnloadOD extends OutPut {
 
             //load and unload
             int i = 1;
-            for (Iterator<String> it1 = districts.iterator(); it1.hasNext(); ) {
+            for (String district : districts) {
                 double temp = 0;//jame har radif
-                String a = it1.next();
                 row1 = sheet1.createRow(i);
-                setCell(row1, 0, a, style);
+                setCell(row1, 0, district, style);
                 int j = 1;
-                for (Iterator<String> it2 = districts.iterator(); it2.hasNext(); ) {
-                    String b = it2.next();
+                for (String b : districts) {
                     double ton = 0;
                     for (Commodity commodity : commodities) {
-                        if (commodity.getOriginDistrict().equals(a) && commodity.getDestinationDistrict().equals(b)) {
-                            ton += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
+                        if (commodity.getOriginDistrict().equals(district) && commodity.getDestinationDistrict().equals(b)) {
+                            ton += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
                         }
                     }
 
@@ -82,8 +79,7 @@ public class OutputLoadUnloadOD extends OutPut {
             row1 = sheet1.createRow(i);
             setCell(row1, 0, "جمع هر ناحیه", style);
             i = 1;
-            for (Iterator<String> it1 = districts.iterator(); it1.hasNext(); ) {
-                it1.next();
+            for (String ignored : districts) {
                 sumColumn(row1, i, 2, districts.size() + 1, "SUM", style);
                 i++;
             }
@@ -91,25 +87,23 @@ public class OutputLoadUnloadOD extends OutPut {
 
             //ton kilometer
             i = 1;
-            for (Iterator<String> it1 = districts.iterator(); it1.hasNext(); ) {
+            for (String district : districts) {
                 double temp = 0;//jame har radif
-                String a = it1.next();
                 row2 = sheet2.createRow(i);
-                setCell(row2, 0, a, style);
+                setCell(row2, 0, district, style);
                 int j = 1;
-                for (Iterator<String> it2 = districts.iterator(); it2.hasNext(); ) {
-                    String b = it2.next();
+                for (String b : districts) {
                     double tonKilometer = 0;
                     for (Commodity commodity : commodities) {
-                        if (commodity.getOriginDistrict().equals(a)) {
+                        if (commodity.getOriginDistrict().equals(district)) {
                             for (Block block : commodity.getBlocks()) {
                                 if (block.getDistrict().equals(b)) {
-                                    tonKilometer += commodity.getHowMuchIsAllowed()*(commodity.getPlanTon() * block.getLength());
+                                    tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() * block.getLength());
                                 }
                             }
                             //add ton kilometer saier
-                            if(commodity.getBlocks().size()==0){
-                                tonKilometer += commodity.getHowMuchIsAllowed()*(commodity.getPlanTon() * commodity.getDistance());
+                            if (commodity.getBlocks().size() == 0) {
+                                tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() * commodity.getDistance());
 
                             }
                         }
@@ -126,15 +120,14 @@ public class OutputLoadUnloadOD extends OutPut {
             row2 = sheet2.createRow(i);
             setCell(row2, 0, "تن کیلومتر مرزی نواحی", style);
             i = 1;
-            for (Iterator<String> it1 = districts.iterator(); it1.hasNext(); ) {
-                it1.next();
+            for (String ignored : districts) {
                 sumColumn(row2, i, 2, districts.size() + 1, "SUM", style);
                 i++;
             }
             sumColumn(row2, i, 2, districts.size() + 1, "SUM", style);
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -142,13 +135,7 @@ public class OutputLoadUnloadOD extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

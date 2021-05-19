@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-import static company.windows.alert;
+import static company.App.mainController;
 
 public class Assignment {
-    static int stationA;
-    static int stationB;
     public static XSSFRow row;
 
     public ArrayList<Station> stations = null;
@@ -43,26 +41,24 @@ public class Assignment {
     public static OutPut outPut = new OutPut();
 
 
-    public void main(String outPutDirectory, boolean fullAssignmentSelected) {
+    public void main(boolean fullAssignmentSelected) {
 
         PrintStream logFile;
 
         try (PrintStream printStream = logFile = new PrintStream(new FileOutputStream("log.txt"))) {
             System.setOut(logFile);
 
-            //before start silving models we should sure the commodities are emptry from previews result
+            //before start solving models we should sure the commodities are empty from previews result
             resetCommoditiesResult();
 
-            solveModel();
+            findPaths();
             if (fullAssignmentSelected)
                 barGozari();
             else
                 multiCommodity();
 
-        } catch (FileNotFoundException e) {
-            alert(e.getMessage());
-        } catch (NullPointerException e) {
-            alert(e.getMessage());
+        } catch (FileNotFoundException | NullPointerException e) {
+            mainController.alert(e.getMessage());
         }
     }
 
@@ -118,171 +114,178 @@ public class Assignment {
         }
     }
 
-    public boolean solveModel() {
+    public boolean findPaths() {
+        for (Commodity commodity : commodities) {
+            int stationA = commodity.getOriginId();
+            int stationB = commodity.getDestinationId();
+            String a = commodity.getOrigin();
+            String b = commodity.getDestination();
+            if (a.equals(b) && !a.contains("سایر")) {
+                mainController.alert("same OD for " + commodity);
+                commodity.setDistance(150);
+                commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
+                commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
+                continue;
+            }
+
+            doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b);
+
+        }
+        return true;
+    }
+
+    public static ArrayList<Block> doModel(ArrayList<Block> blocks, PathExceptions pathExceptions,
+                                           ArrayList<Station> stations, Commodity commodity,
+                                           int stationA, int stationB, String a, String b) {
         try {
             IloCplex model = new IloCplex();
             IloNumVar[] X = new IloNumVar[blocks.size()];
             IloNumExpr goalFunction;
             IloNumExpr constraint;
+            //start solving model for the commodity
+            //masirhai estesna baiad az masir khas beran
+            int temp = pathExceptions.isException(OutPut.districtOf(a, stations),
+                    OutPut.districtOf(b, stations));
+            if (temp == 1 || temp == 2) {
+                for (int j = 0; j < blocks.size(); j++) {
+                    boolean flag = true;
+                    for (int i = (temp - 1); i < pathExceptions.getBlocksMustbe().size(); ) {
+                        if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
+                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                            flag = false;
+                        } else if ((a.equals("ری") && !b.equals("تهران")) && (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام"))) {
+                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                            flag = false;
+                        }
+                        i += 2;
+                    }
+                    if (flag) {
+                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
+                    }
+                }
+            } else if (a.equals("ری") && !b.equals("تهران")) {
+                for (int j = 0; j < blocks.size(); j++) {
+                    if (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام")) {
+                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                    } else {
+                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
+                    }
+                }
+            } else if (b.equals("ری") && !a.equals("تهران")) {
+                for (int j = 0; j < blocks.size(); j++) {
+                    if (blocks.get(j).getOrigin().equals("بهرام") && blocks.get(j).getDestination().equals("ری")) {
+                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                    } else {
+                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
+                    }
+                }
+            } else {
+                for (int i = 0; i < blocks.size(); i++) {
+                    X[i] = model.numVar(0, 1, IloNumVarType.Int);
+                }
+            }
 
-            for (Commodity value : commodities) {
-                stationA = value.getOriginId();
-                stationB = value.getDestinationId();
-                Commodity commodity = value;
-                String a = commodity.getOrigin();
-                String b = commodity.getDestination();
-                if (a.equals(b) && !a.contains("سایر")) {
-                    alert("same OD for " + commodity);
+            goalFunction = model.constant(0);
+            for (int i = 0; i < blocks.size(); i++) {
+                goalFunction = model.sum(goalFunction, model.prod(X[i], blocks.get(i).getLength()));
+            }
+            model.addMinimize(goalFunction);
+
+            // constraints
+            for (Station station : stations) {
+                constraint = model.constant(0);
+                if (station.getId() == stationA) {
+                    for (int j = 0; j < blocks.size(); j++) {
+                        if (stationA == blocks.get(j).getOriginId()) {
+                            constraint = model.sum(constraint, X[j]);
+                        }
+                        if (stationA == blocks.get(j).getDestinationId()) {
+                            constraint = model.sum(constraint, model.negative(X[j]));
+                        }
+                    }
+                    model.addEq(constraint, 1);
+                } else if (station.getId() == (stationB)) {
+                    for (int j = 0; j < blocks.size(); j++) {
+                        if (stationB == blocks.get(j).getOriginId()) {
+                            constraint = model.sum(constraint, X[j]);
+                        }
+                        if (stationB == blocks.get(j).getDestinationId()) {
+                            constraint = model.sum(constraint, model.negative(X[j]));
+                        }
+                    }
+                    model.addEq(constraint, -1);
+                } else {
+                    for (int j = 0; j < blocks.size(); j++) {
+                        if (station.getId() == (blocks.get(j).getOriginId())) {
+                            constraint = model.sum(constraint, X[j]);
+                        }
+                        if (station.getId() == (blocks.get(j).getDestinationId())) {
+                            constraint = model.sum(constraint, model.negative(X[j]));
+                        }
+                    }
+                    model.addEq(constraint, 0);
+                }
+            } // end of constraints
+
+            model.setOut(null);
+            try {
+                if (model.solve()) {
+                    commodity.setDistance(model.getObjValue());
+                    commodity.setTonKilometerOperation(model.getObjValue() * commodity.getOperationTon());
+                    commodity.setTonKilometerPlan(model.getObjValue() * commodity.getPlanTon());
+                    for (int i = 0; i < blocks.size(); i++) {
+                        if (model.getValue(X[i]) > 0.5) {
+                            commodity.getBlocks().add(blocks.get(i));
+                        }
+                    }
+
+                    //sort blocks
+                    String tempOrigin = a;
+                    ArrayList<Block> tempBlocks = new ArrayList<>();
+
+                    while (!commodity.getBlocks().isEmpty()) {
+                        for (Block block : commodity.getBlocks()) {
+                            if (block.getOrigin().equals(tempOrigin)) {
+                                tempBlocks.add(block);
+                                tempOrigin = block.getDestination();
+                                commodity.getBlocks().remove(block);
+                                break;
+                            }
+                        }
+                    }
+                    commodity.setBlocks(tempBlocks);
+
+                    model.clearModel();
+                    for (int i = 0; i < blocks.size(); i++) {
+                        if (X[i] != null) {
+                            X[i] = null;
+                        }
+                    }
+
+                    goalFunction = null;
+                    constraint = null;
+                } else {
                     commodity.setDistance(150);
                     commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
                     commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
-                    continue;
+                    mainController.alert("No path for " + commodity);
+                    model.clearModel();
                 }
-
-                //start solving model for the commodity
-
-                //masirhai estesna baiad az masir khas beran
-                int temp = pathExceptions.isException(a, b);
-                if (temp == 1 || temp == 2) {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        boolean flag = true;
-                        for (int i = (temp - 1); i < pathExceptions.getBlocksMustbe().size(); ) {
-                            if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
-                                X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                                flag = false;
-                            } else if ((a.equals("ری") && !b.equals("تهران")) && (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام"))) {
-                                X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                                flag = false;
-                            }
-                            i += 2;
-                        }
-                        if (flag) {
-                            X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                        }
-                    }
-                } else if (a.equals("ری") && !b.equals("تهران")) {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        if (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام")) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                        } else {
-                            X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                        }
-                    }
-                } else if (b.equals("ری") && !a.equals("تهران")) {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        if (blocks.get(j).getOrigin().equals("بهرام") && blocks.get(j).getDestination().equals("ری")) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                        } else {
-                            X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                        }
-                    }
-                } else {
-                    for (int i = 0; i < blocks.size(); i++) {
-                        X[i] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
+                if (commodity.getDistance() < 150) {
+                    commodity.setDistance(150);
+                    commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
+                    commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
+                    model.clearModel();
                 }
-
-                goalFunction = model.constant(0);
-                for (int i = 0; i < blocks.size(); i++) {
-                    goalFunction = model.sum(goalFunction, model.prod(X[i], blocks.get(i).getLength()));
-                }
-                model.addMinimize(goalFunction);
-
-                // constraints
-                for (int i = 0; i < stations.size(); i++) {
-                    constraint = model.constant(0);
-                    if (stations.get(i).getId() == stationA) {
-                        for (int j = 0; j < blocks.size(); j++) {
-                            if (stationA == blocks.get(j).getOriginId()) {
-                                constraint = model.sum(constraint, X[j]);
-                            }
-                            if (stationA == blocks.get(j).getDestinationId()) {
-                                constraint = model.sum(constraint, model.negative(X[j]));
-                            }
-                        }
-                        model.addEq(constraint, 1);
-                    } else if (stations.get(i).getId() == (stationB)) {
-                        for (int j = 0; j < blocks.size(); j++) {
-                            if (stationB == blocks.get(j).getOriginId()) {
-                                constraint = model.sum(constraint, X[j]);
-                            }
-                            if (stationB == blocks.get(j).getDestinationId()) {
-                                constraint = model.sum(constraint, model.negative(X[j]));
-                            }
-                        }
-                        model.addEq(constraint, -1);
-                    } else {
-                        for (int j = 0; j < blocks.size(); j++) {
-                            if (stations.get(i).getId() == (blocks.get(j).getOriginId())) {
-                                constraint = model.sum(constraint, X[j]);
-                            }
-                            if (stations.get(i).getId() == (blocks.get(j).getDestinationId())) {
-                                constraint = model.sum(constraint, model.negative(X[j]));
-                            }
-                        }
-                        model.addEq(constraint, 0);
-                    }
-                } // end of constraints
-
-                model.setOut(null);
-                try {
-                    if (model.solve()) {
-                        commodity.setDistance(model.getObjValue());
-                        commodity.setTonKilometerOperation(model.getObjValue() * commodity.getOperationTon());
-                        commodity.setTonKilometerPlan(model.getObjValue() * commodity.getPlanTon());
-                        for (int i = 0; i < blocks.size(); i++) {
-                            if (model.getValue(X[i]) > 0.5) {
-                                commodity.getBlocks().add(blocks.get(i));
-                            }
-                        }
-
-                        //sort blocks
-                        String tempOrigin = a;
-                        ArrayList<Block> tempBlocks = new ArrayList<>();
-
-                        while (!commodity.getBlocks().isEmpty()) {
-                            for (Block block : commodity.getBlocks()) {
-                                if (block.getOrigin().equals(tempOrigin)) {
-                                    tempBlocks.add(block);
-                                    tempOrigin = block.getDestination();
-                                    commodity.getBlocks().remove(block);
-                                    break;
-                                }
-                            }
-                        }
-                        commodity.setBlocks(tempBlocks);
-
-                        model.clearModel();
-                        for (int i = 0; i < blocks.size(); i++) {
-                            if (X[i] != null) {
-                                X[i] = null;
-                            }
-                        }
-
-                        goalFunction = null;
-                        constraint = null;
-                    } else {
-                        commodity.setDistance(150);
-                        commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
-                        commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
-                        alert("No path for " + commodity);
-                        model.clearModel();
-                    }
-                    if (commodity.getDistance() < 150) {
-                        commodity.setDistance(150);
-                        commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
-                        commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
-                        model.clearModel();
-                    }
-                } catch (CpxException e) {
-                    alert(e.getMessage());
-                }
+                return commodity.getBlocks();
+            } catch (CpxException e) {
+                mainController.alert(e.getMessage());
+                return null;
             }
-        } catch (
-                IloException e) {
-            e.printStackTrace();
+        } catch (IloException e) {
+            mainController.alert(e.getMessage());
+            return null;
         }
-        return true;
     }
 
     public void readData(String outPutDirectory) {
@@ -357,13 +360,13 @@ public class Assignment {
                 for (int j = 1; j < sheet4.getLastRowNum(); j++) {
                     XSSFRow row = sheet4.getRow(j + 1);
                     try {
-                        if (row.getCell(i).getStringCellValue() != "") {
+                        if (!row.getCell(i).getStringCellValue().equals("")) {
                             switch (i) {
                                 case 0:
-                                    pathExceptions.getOrigins().add(row.getCell(i).getStringCellValue());
+                                    pathExceptions.getOriginDistricts().add(row.getCell(i).getStringCellValue());
                                     break;
                                 case 1:
-                                    pathExceptions.getDestinations().add(row.getCell(i).getStringCellValue());
+                                    pathExceptions.getDestinationDistricts().add(row.getCell(i).getStringCellValue());
                                     break;
                                 case 2:
                                     for (Block block : blocks) {
@@ -379,12 +382,9 @@ public class Assignment {
                                     break;
                             }
                         }
-                    } catch (IllegalStateException e) {
-                        break;
-                    } catch (NullPointerException e) {
+                    } catch (IllegalStateException | NullPointerException e) {
                         break;
                     }
-
                 }
             }
 
@@ -403,13 +403,7 @@ public class Assignment {
             blocks.trimToSize();
             commodities.trimToSize();
 
-        } catch (FileNotFoundException e) {
-            outPut.failDisplay(e);
-        } catch (IOException e) {
-            outPut.failDisplay(e);
-        } catch (NullPointerException e) {
-            outPut.failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             outPut.failDisplay(e);
         } finally {
             if (dataFile != null) {
@@ -445,60 +439,60 @@ public class Assignment {
 
             //read commodities data
             XSSFSheet sheet3 = data.getSheetAt(2);
-            for (int i = Integer.valueOf(result[0]); i <= sheet3.getLastRowNum(); i++) {
+            for (int i = Integer.parseInt(result[0]); i <= sheet3.getLastRowNum(); i++) {
                 XSSFRow row = sheet3.getRow(i);
-                if ((!result[1].equals("") || !result[2].equals("")) && i == Integer.valueOf(result[0])) {
+                if ((!result[1].equals("") || !result[2].equals("")) && i == Integer.parseInt(result[0])) {
                     if (nameIsNotOkay(result[1]) ||
                             nameIsNotOkay(result[2])) {
                         return result;
                     }
-                } else if (nameIsNotOkay(row.getCell(1).getStringCellValue().trim()) ||
-                        nameIsNotOkay(row.getCell(2).getStringCellValue().trim())) {
+                } else if (nameIsNotOkay(row.getCell(0).getStringCellValue().trim()) ||
+                        nameIsNotOkay(row.getCell(1).getStringCellValue().trim())) {
                     result[0] = String.valueOf(i);
-                    result[1] = row.getCell(1).getStringCellValue().trim();
-                    result[2] = row.getCell(2).getStringCellValue().trim();
-                    result[3] = row.getCell(1).getStringCellValue().trim();
-                    result[4] = row.getCell(2).getStringCellValue().trim();
+                    result[1] = row.getCell(0).getStringCellValue().trim();
+                    result[2] = row.getCell(1).getStringCellValue().trim();
+                    result[3] = row.getCell(0).getStringCellValue().trim();
+                    result[4] = row.getCell(1).getStringCellValue().trim();
                     return result;
                 }
 
-                if ((!result[1].equals("") || !result[2].equals("")) && i == Integer.valueOf(result[0])) {
-                    Commodity commodity = new Commodity((int) row.getCell(0).getNumericCellValue(),
-                            findName(result[1]),
-                            findName(result[2]),
+                if ((!result[1].equals("") || !result[2].equals("")) && i == Integer.parseInt(result[0])) {
+                    Commodity commodity = new Commodity(
+                            findName(result[1])[0],
+                            findName(result[2])[0],
+                            row.getCell(2).getNumericCellValue(),
                             row.getCell(3).getNumericCellValue(),
                             row.getCell(4).getNumericCellValue(),
                             row.getCell(5).getNumericCellValue(),
-                            row.getCell(6).getNumericCellValue(),
+                            row.getCell(6).getStringCellValue(),
                             row.getCell(7).getStringCellValue(),
                             row.getCell(8).getStringCellValue(),
                             row.getCell(9).getStringCellValue(),
-                            row.getCell(10).getStringCellValue(),
                             stations);
                     commodities.add(commodity);
                     updateAlterNames(result, data, outPutDirectory + "/Data.xlsx");
                 } else {
-                    Commodity commodity = new Commodity((int) row.getCell(0).getNumericCellValue(),
-                            findName(row.getCell(1).getStringCellValue().trim()),
-                            findName(row.getCell(2).getStringCellValue().trim()),
+                    Commodity commodity = new Commodity(
+                            findName(row.getCell(0).getStringCellValue().trim())[0],
+                            findName(row.getCell(1).getStringCellValue().trim())[0],
+                            row.getCell(2).getNumericCellValue(),
                             row.getCell(3).getNumericCellValue(),
                             row.getCell(4).getNumericCellValue(),
                             row.getCell(5).getNumericCellValue(),
-                            row.getCell(6).getNumericCellValue(),
+                            row.getCell(6).getStringCellValue(),
                             row.getCell(7).getStringCellValue(),
                             row.getCell(8).getStringCellValue(),
                             row.getCell(9).getStringCellValue(),
-                            row.getCell(10).getStringCellValue(),
                             stations);
                     commodities.add(commodity);
                 }
-                wagons.add(row.getCell(7).getStringCellValue().toLowerCase());
+                wagons.add(row.getCell(6).getStringCellValue().toLowerCase());
 
-                transportKinds.add(row.getCell(8).getStringCellValue().toLowerCase());
+                transportKinds.add(row.getCell(7).getStringCellValue().toLowerCase());
 
-                mainCargoTypes.add(row.getCell(9).getStringCellValue().toLowerCase());
+                mainCargoTypes.add(row.getCell(8).getStringCellValue().toLowerCase());
 
-                cargoTypes.add(row.getCell(10).getStringCellValue().toLowerCase());
+                cargoTypes.add(row.getCell(9).getStringCellValue().toLowerCase());
 
             }
 
@@ -507,13 +501,7 @@ public class Assignment {
             result[0] = "-1";
             result[1] = "";
             result[2] = "";
-        } catch (FileNotFoundException e) {
-            outPut.failDisplay(e);
-        } catch (IOException e) {
-            outPut.failDisplay(e);
-        } catch (NullPointerException e) {
-            outPut.failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             outPut.failDisplay(e);
         } finally {
             if (dataFile != null) {
@@ -538,8 +526,8 @@ public class Assignment {
 
         FileOutputStream outFile;
 
-        String correctOriginName = findName(result[1]);
-        String correctDestinationName = findName(result[2]);
+        String correctOriginName = findName(result[1])[0];
+        String correctDestinationName = findName(result[2])[0];
         try {
             XSSFSheet sheet1 = workBook.getSheetAt(0);
 
@@ -579,8 +567,10 @@ public class Assignment {
                 if (station.getName().equals(correctOriginName)) {
                     boolean check = true;
                     for (String name : station.getAlterNames()) {
-                        if (result[3].equals(name))
+                        if (result[3].equals(name)) {
                             check = false;
+                            break;
+                        }
                     }
                     if (check) {
                         station.getAlterNames().add(result[3]);
@@ -590,8 +580,10 @@ public class Assignment {
                 if (station.getName().equals(correctDestinationName)) {
                     boolean check = true;
                     for (String name : station.getAlterNames()) {
-                        if (result[4].equals(name))
+                        if (result[4].equals(name)) {
                             check = false;
+                            break;
+                        }
                     }
                     if (check) {
                         station.getAlterNames().add(result[4]);
@@ -604,26 +596,20 @@ public class Assignment {
             outFile.flush();
             outFile.close();
             workBook.close();
-        } catch (FileNotFoundException e) {
-            outPut.failDisplay(e);
-        } catch (IOException e) {
-            outPut.failDisplay(e);
-        } catch (NullPointerException e) {
-            outPut.failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             outPut.failDisplay(e);
         }
     }
 
-    public String findName(String stringCellValue) {
+    public String[] findName(String stringCellValue) {
         for (Station station : stations) {
             for (String name : station.getAlterNames()) {
                 if (name.equals(stringCellValue)) {
-                    return station.getName();
+                    return new String[]{station.getName(), String.valueOf(station.getId())};
                 }
             }
         }
-        return "null";
+        return null;
     }
 
     private boolean nameIsNotOkay(String stringCellValue) {
@@ -636,7 +622,7 @@ public class Assignment {
         return true;
     }
 
-    public boolean multiCommodity() {
+    public void multiCommodity() {
         try {
             IloCplex model = new IloCplex();
             IloNumVar[] X = new IloNumVar[commodities.size()];
@@ -690,7 +676,7 @@ public class Assignment {
                     }
                 }
             } catch (CpxException e) {
-                alert(e.getMessage());
+                mainController.alert(e.getMessage());
             }
         } catch (IloException e) {
             e.printStackTrace();
@@ -720,7 +706,6 @@ public class Assignment {
                 }
             }
         }
-        return true;
     }
 }
 

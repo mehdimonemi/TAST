@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import static company.Assignment.*;
-import static company.windows.alert;
 
 /**
  * Created by Monemi_M on 01/21/2018.
@@ -40,7 +39,7 @@ public class OutputDistricts extends OutPut {
 
         setMassageForWritingFile("Districts");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -64,10 +63,10 @@ public class OutputDistricts extends OutPut {
                 } else
                     setCell(row, 0, district, style);
                 //bargiri har district
-                Double bargiriTon = 0.0;
-                Double bargiriTonDay = 0.0;
-                Double bargiriWagon = 0.0;
-                Double bargiriWagonDay = 0.0;
+                double bargiriTon = 0.0;
+                double bargiriTonDay = 0.0;
+                double bargiriWagon = 0.0;
+                double bargiriWagonDay = 0.0;
                 for (Commodity commodity : commodities) {
                     if (district.equals(commodity.getOriginDistrict())) {
                         bargiriTon += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
@@ -83,10 +82,10 @@ public class OutputDistricts extends OutPut {
                 setCell(row, 4, bargiriWagonDay, style);
 
                 //takhlie har district
-                Double takhlieTon = 0.0;
-                Double takhlieTonDay = 0.0;
-                Double takhlieWagon = 0.0;
-                Double takhlieWagonDay = 0.0;
+                double takhlieTon = 0.0;
+                double takhlieTonDay = 0.0;
+                double takhlieWagon = 0.0;
+                double takhlieWagonDay = 0.0;
                 for (Commodity commodity : commodities) {
                     if (district.equals(commodity.getDestinationDistrict())) {
                         takhlieTon += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
@@ -185,7 +184,7 @@ public class OutputDistricts extends OutPut {
             }
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -193,13 +192,7 @@ public class OutputDistricts extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }
@@ -238,12 +231,12 @@ public class OutputDistricts extends OutPut {
                 setCell(row, i, "ماهانه", style);
                 setCell(row, ++i, "روزانه", style);
             }
-        } else if (period > 31 && period <= 93) {
+        } else if (period <= 93) {
             for (int i = 1; i <= 16; i++) {
                 setCell(row, i, "فصلی", style);
                 setCell(row, ++i, "روزانه", style);
             }
-        } else if (period > 93 && period <= 186) {
+        } else if (period <= 186) {
             for (int i = 1; i <= 16; i++) {
                 setCell(row, i, "نیم سال", style);
                 setCell(row, ++i, "روزانه", style);

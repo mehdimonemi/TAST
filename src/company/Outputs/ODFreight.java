@@ -4,12 +4,6 @@ import company.Data.Block;
 import company.Data.Commodity;
 import company.Data.PathExceptions;
 import company.Data.Station;
-import ilog.concert.IloException;
-import ilog.concert.IloNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.cplex.CpxException;
-import ilog.cplex.IloCplex;
 import org.apache.poi.EmptyFileException;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -19,6 +13,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 
+import static company.Assignment.doModel;
 import static company.windows.alert;
 
 /**
@@ -27,15 +22,13 @@ import static company.windows.alert;
 public class ODFreight extends OutPut {
 
     private ArrayList<Block> givenPathBlocks;
+    private int stationA, stationB;
+    private String a, b;
 
     public ODFreight(String output, ArrayList<Block> blocks,
                      ArrayList<Commodity> commodities, PathExceptions pathExceptions,
-                     ArrayList<Station> stations) {
+                     ArrayList<Station> stations, String CargoOrigin, String cargoDestination) {
 
-        int stationA = 429;
-        String a = "بافق";
-        int stationB = 126;
-        String b = "زرین شهر";
         //first of all we need our path
         //Now we Start main goal
         FileInputStream inFile;
@@ -57,13 +50,16 @@ public class ODFreight extends OutPut {
             CellStyle style = setStyle(workBook, "B Zar");
 
             //a to b freight
-            solve(stationA, stationB, a, b, blocks, commodities, pathExceptions, stations);
             double tonPlan = 0;
             double tonKilometerPlan = 0;
             double wagonPlan = 0;
             double wagonOperation = 0;
             double tonOperation = 0;
             double tonKilometerOperation = 0;
+            givenPathBlocks = new ArrayList<>();
+
+            Commodity temp = new Commodity();
+            givenPathBlocks.addAll(doModel(blocks,pathExceptions,stations, temp, stationA, stationB, a, b));
             for (Commodity commodity : commodities) {
                 boolean tonAdded = false;
                 for (Block block : commodity.getBlocks()) {
@@ -105,7 +101,6 @@ public class ODFreight extends OutPut {
             sheet.addMergedRegion(new CellRangeAddress(8, 8, 0, 2));
 
             //b to a freight
-            solve(stationB, stationA, b, a, blocks, commodities, pathExceptions, stations);
             tonPlan = 0;
             tonKilometerPlan = 0;
             wagonPlan = 0;
@@ -151,148 +146,5 @@ public class ODFreight extends OutPut {
         } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
-    }
-
-    public void solve(int stationA, int stationB, String a, String b,
-                      ArrayList<Block> blocks, ArrayList<Commodity> commodities, PathExceptions pathExceptions,
-                      ArrayList<Station> stations) {
-        try {
-            IloCplex model = new IloCplex();
-            IloNumVar[] X = new IloNumVar[blocks.size()];
-            IloNumExpr goalFunction;
-            IloNumExpr constraint;
-
-
-            //start solving model for the commodity
-
-            //masirhai estesna baiad az masir khas beran
-            int temp = pathExceptions.isException(a, b);
-            if (temp == 1 || temp == 2) {
-                for (int j = 0; j < blocks.size(); j++) {
-                    boolean flag = true;
-                    for (int i = (temp - 1); i < pathExceptions.getBlocksMustbe().size(); ) {
-                        if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                            flag = false;
-                        } else if ((a.equals("ری") && !b.equals("تهران")) && (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام"))) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                            flag = false;
-                        }
-                        i += 2;
-                    }
-                    if (flag) {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
-                }
-            } else if (a.equals("ری") && !b.equals("تهران")) {
-                for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
-                }
-            } else if (b.equals("ری") && !a.equals("تهران")) {
-                for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("بهرام") && blocks.get(j).getDestination().equals("ری")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
-                }
-            } else {
-                for (int i = 0; i < blocks.size(); i++) {
-                    X[i] = model.numVar(0, 1, IloNumVarType.Int);
-                }
-            }
-
-            goalFunction = model.constant(0);
-            for (int i = 0; i < blocks.size(); i++) {
-                goalFunction = model.sum(goalFunction, model.prod(X[i], blocks.get(i).getLength()));
-            }
-            model.addMinimize(goalFunction);
-
-            // constraints
-            for (Station station : stations) {
-                constraint = model.constant(0);
-                if (station.getId() == stationA) {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        if (stationA == blocks.get(j).getOriginId()) {
-                            constraint = model.sum(constraint, X[j]);
-                        }
-                        if (stationA == blocks.get(j).getDestinationId()) {
-                            constraint = model.sum(constraint, model.negative(X[j]));
-                        }
-                    }
-                    model.addEq(constraint, 1);
-                } else if (station.getId() == (stationB)) {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        if (stationB == blocks.get(j).getOriginId()) {
-                            constraint = model.sum(constraint, X[j]);
-                        }
-                        if (stationB == blocks.get(j).getDestinationId()) {
-                            constraint = model.sum(constraint, model.negative(X[j]));
-                        }
-                    }
-                    model.addEq(constraint, -1);
-                } else {
-                    for (int j = 0; j < blocks.size(); j++) {
-                        if (station.getId() == (blocks.get(j).getOriginId())) {
-                            constraint = model.sum(constraint, X[j]);
-                        }
-                        if (station.getId() == (blocks.get(j).getDestinationId())) {
-                            constraint = model.sum(constraint, model.negative(X[j]));
-                        }
-                    }
-                    model.addEq(constraint, 0);
-                }
-            } // end of constraints
-
-            model.setOut(null);
-            try {
-                givenPathBlocks = new ArrayList<>();
-                if (model.solve()) {
-                    for (int i = 0; i < blocks.size(); i++) {
-                        if (model.getValue(X[i]) > 0.5) {
-                            givenPathBlocks.add(blocks.get(i));
-                        }
-                    }
-
-                    //sort blocks
-                    String tempOrigin = a;
-                    ArrayList<Block> tempBlocks = new ArrayList<>();
-
-                    while (!givenPathBlocks.isEmpty()) {
-                        for (Block block : givenPathBlocks) {
-                            if (block.getOrigin().equals(tempOrigin)) {
-                                tempBlocks.add(block);
-                                tempOrigin = block.getDestination();
-                                givenPathBlocks.remove(block);
-                                break;
-                            }
-                        }
-                    }
-                    givenPathBlocks.addAll(tempBlocks);
-
-                    model.clearModel();
-                    for (int i = 0; i < blocks.size(); i++) {
-                        if (X[i] != null) {
-                            X[i] = null;
-                        }
-                    }
-                    goalFunction = null;
-                    constraint = null;
-                } else {
-                    alert("No path for " + a + " to " + b);
-                    model.clearModel();
-                }
-            } catch (CpxException e) {
-                alert(e.getMessage());
-            }
-
-        } catch (IloException e) {
-            e.printStackTrace();
-        }
-
     }
 }

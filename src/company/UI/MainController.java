@@ -17,9 +17,8 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
@@ -36,8 +35,6 @@ import static company.App.mainController;
 public class MainController {
     @FXML
     VBox primaryStage;
-    @FXML
-    private Label welcomeLabel, periodLabel;
     @FXML
     private JFXCheckBox pathCheckBox, assignmentCheckBox, summeryCheckBox,
             cargoTypeCheckBox, cargoSummeryCheckBox, districtsCheckBox, loadUnloadODCheckBox;
@@ -101,17 +98,30 @@ public class MainController {
                     @Override
                     protected Void call() throws Exception {
 
-                        ULocale locale = new ULocale("en_US@calendar=persian");
+                        boolean finalCheck = true;
+                        if (cargoForODTab.isSelected()) {
+                            String[] finalCargoOrigin =
+                                    assignmentClass.findName(cargoOrigin.getText());
+                            String[] finalCargoDestination =
+                                    assignmentClass.findName(cargoDestination.getText());
+                            if (cargoOrigin.getText().equals("null") || cargoDestination.getText().equals("null")) {
+                                processState = false;
+                                finalCheck = false;
+                                alert("Origin/Destination names are NOT CORRECT!");
+                            }
+                        }
 
-                        Calendar calendar = Calendar.getInstance(locale);
-                        SimpleDateFormat df = new SimpleDateFormat("MM.dd - EEE, MMM - HH.mm.ss", locale);
+                        if (finalCheck) {
+                            ULocale locale = new ULocale("en_US@calendar=persian");
 
-                        outPutFileName = "./Output " + df.format(calendar) + ".xlsx";
+                            Calendar calendar = Calendar.getInstance(locale);
+                            SimpleDateFormat df = new SimpleDateFormat("MM.dd - EEE, MMM - HH.mm.ss", locale);
 
-                        if (isFileClose(outPutDirectory + outPutFileName)) {
-                            if (assignmentTab.isSelected()) {
+                            outPutFileName = "./Output " + df.format(calendar) + ".xlsx";
 
-                                assignmentClass.main(outPutDirectory, fullAssignment.isSelected());
+                            if (isFileClose(outPutDirectory + outPutFileName)) {
+
+                                assignmentClass.main(fullAssignment.isSelected());
 
                                 fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
                                 fileOut.flush();
@@ -150,17 +160,16 @@ public class MainController {
                                             assignmentClass.districts, assignmentClass.commodities);
                                 }
                                 if (cargoForODTab.isSelected()) {
-                                    new ODFreight(
-                                            outPutDirectory + outPutFileName, assignmentClass.blocks,
-                                            assignmentClass.commodities, assignmentClass.pathExceptions,
-                                            assignmentClass.stations);
-                                }
-                            } else {
 
+                                    new ODFreight(outPutDirectory + outPutFileName, assignmentClass.blocks,
+                                            assignmentClass.commodities, assignmentClass.pathExceptions,
+                                            assignmentClass.stations, cargoOrigin.getText(), cargoDestination.getText());
+                                }
+
+                            } else {
+                                processState = false;
+                                alert("Excel File is open. Please close it first.");
                             }
-                        } else {
-                            processState = false;
-                            alert("Excel File is open. Please close it first.");
                         }
                         System.gc();
                         return null;
@@ -372,9 +381,8 @@ public class MainController {
         });
 
         //Check weather CargoForODTab selected or not
-        cargoForODTab.selectedProperty().addListener((obs, isFalse, isTrue) -> {
-            ((SimpleBooleanProperty) checkBoxSelected).set(isTrue);
-        });
+        cargoForODTab.selectedProperty().addListener((obs, isFalse, isTrue) ->
+                ((SimpleBooleanProperty) checkBoxSelected).set(isTrue));
 
         //a listener to add or remove the status of cargoTab to the start process conditions
         cargoTabSelected.addListener((obs, isFalse, isTrue) -> {

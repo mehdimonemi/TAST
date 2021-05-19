@@ -26,7 +26,7 @@ public class OutputCargoType extends OutPut {
 
         setMassageForWritingFile("Cargo Type");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -66,7 +66,6 @@ public class OutputCargoType extends OutPut {
 
             int rowCounter = 2;
             int mainCargoRowCounter;
-            int wagonRowCounter;
             int firstRowCargoType;
             for (String mainCargoType : mainCargoTypes) {
                 firstRowCargoType = rowCounter;
@@ -74,7 +73,6 @@ public class OutputCargoType extends OutPut {
                 double tonMainCargoType = 0;
                 double tonKilometerMainCargoType = 0;
                 for (String wagonType : wagons) {
-                    wagonRowCounter = rowCounter;
                     for (Commodity commodity : commodities) {
                         if (commodity.getMainCargoType().equalsIgnoreCase(mainCargoType) && commodity.getWagonType().equalsIgnoreCase(wagonType)) {
 
@@ -115,7 +113,7 @@ public class OutputCargoType extends OutPut {
             }
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -123,13 +121,7 @@ public class OutputCargoType extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

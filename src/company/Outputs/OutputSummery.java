@@ -25,7 +25,7 @@ public class OutputSummery extends OutPut {
 
         setMassageForWritingFile("Summery");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -44,10 +44,10 @@ public class OutputSummery extends OutPut {
 
             XSSFRow row1 = sheet.getRow(2);
             XSSFRow row2 = sheet.getRow(3);
-            Double temp1 = 0.0;
-            Double temp2 = 0.0;
-            Double temp3 = 0.0;
-            Double temp4 = 0.0;
+            double temp1 = 0.0;
+            double temp2 = 0.0;
+            double temp3 = 0.0;
+            double temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
                 temp2 += commodity.getOperationTon();
@@ -203,7 +203,7 @@ public class OutputSummery extends OutPut {
 
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -211,13 +211,7 @@ public class OutputSummery extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

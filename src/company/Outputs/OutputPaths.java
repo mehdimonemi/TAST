@@ -22,7 +22,7 @@ public class OutputPaths extends OutPut {
         XSSFWorkbook pathsWorkbook;
         setMassageForWritingFile("Paths");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 pathsWorkbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -43,7 +43,7 @@ public class OutputPaths extends OutPut {
             setCell(row, 6, "مسیر", style);
 
             for (Commodity commodity : commodities) {
-                row = sheet.createRow(commodity.getId());
+                row = sheet.createRow(commodity.getTag());
 
                 setCell(row, 0, commodity.getOrigin(), style);
                 setCell(row, 1, commodity.getDestination(), style);
@@ -61,20 +61,14 @@ public class OutputPaths extends OutPut {
 
             }
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             pathsWorkbook.write(outFile);
             outFile.flush();
             outFile.close();
 //            sheet = null;
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

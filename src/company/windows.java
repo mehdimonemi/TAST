@@ -554,7 +554,7 @@ public class windows extends Application {
                         processState = true;
                         if (isFileClose(outPutDirectory + outPutFileName)) {
 
-                            assignment.main(outPutDirectory, fullAssignment.isSelected());
+                            assignment.main(fullAssignment.isSelected());
 
                             fileOut = new FileOutputStream(outPutDirectory + outPutFileName);
                             fileOut.flush();

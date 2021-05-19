@@ -28,10 +28,10 @@ public class OutputAssignment extends OutPut {
         setMassageForWritingFile("Assignment");
 
         try {
-            formatFileIn = new FileInputStream(new File(formatFile));
+            formatFileIn = new FileInputStream(formatFile);
             formatWorkBook = new XSSFWorkbook(formatFileIn);
 
-            inFile = new FileInputStream(new File(output));
+            inFile = new FileInputStream(output);
             try {
                 mainWorkBook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -142,7 +142,7 @@ public class OutputAssignment extends OutPut {
             formatFileIn.close();
             CopySheet newCopy = new CopySheet();
             newCopy.copySheets(sheet2, sheet1, true);
-            outFile = new FileOutputStream(new File(output));
+            outFile = new FileOutputStream(output);
             mainWorkBook.write(outFile);
 
             outFile.flush();
@@ -151,13 +151,7 @@ public class OutputAssignment extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

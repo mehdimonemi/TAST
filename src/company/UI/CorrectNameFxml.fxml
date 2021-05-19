@@ -6,7 +6,7 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<GridPane fx:id="dialogPan" nodeOrientation="RIGHT_TO_LEFT" stylesheets="/company/UI/MainStyle.css"
+<GridPane fx:id="dialogPan" nodeOrientation="RIGHT_TO_LEFT" stylesheets="/company/UI/DialogStyle.css"
       xmlns="http://javafx.com/javafx/8.0.171" prefHeight="50"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="company.UI.CorrectNameController"
       vgap="10" hgap="10">
