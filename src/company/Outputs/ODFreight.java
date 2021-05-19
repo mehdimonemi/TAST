@@ -12,22 +12,18 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static company.Assignment.doModel;
-import static company.windows.alert;
 
 /**
  * Created by Monemi_M on 01/21/2018.
  */
 public class ODFreight extends OutPut {
 
-    private ArrayList<Block> givenPathBlocks;
-    private int stationA, stationB;
-    private String a, b;
-
     public ODFreight(String output, ArrayList<Block> blocks,
                      ArrayList<Commodity> commodities, PathExceptions pathExceptions,
-                     ArrayList<Station> stations, String CargoOrigin, String cargoDestination) {
+                     ArrayList<Station> stations, String origin, String destination, int originId, int destinationId) {
 
         //first of all we need our path
         //Now we Start main goal
@@ -56,10 +52,10 @@ public class ODFreight extends OutPut {
             double wagonOperation = 0;
             double tonOperation = 0;
             double tonKilometerOperation = 0;
-            givenPathBlocks = new ArrayList<>();
 
             Commodity temp = new Commodity();
-            givenPathBlocks.addAll(doModel(blocks,pathExceptions,stations, temp, stationA, stationB, a, b));
+            ArrayList<Block> givenPathBlocks = new ArrayList<>
+                    (Objects.requireNonNull(doModel(blocks, pathExceptions, stations, temp, originId, destinationId, origin, destination)));
             for (Commodity commodity : commodities) {
                 boolean tonAdded = false;
                 for (Block block : commodity.getBlocks()) {
@@ -80,9 +76,9 @@ public class ODFreight extends OutPut {
             }
 
             setCell(sheet.createRow(0), 0, "ابتدای مسیر", style);
-            setCell(sheet.getRow(0), 1, a, style);
+            setCell(sheet.getRow(0), 1, origin, style);
             setCell(sheet.createRow(1), 0, "انتهای مسیر", style);
-            setCell(sheet.getRow(1), 1, b, style);
+            setCell(sheet.getRow(1), 1, destination, style);
             setCell(sheet.createRow(2), 0, "تن عبوری برنامه", style);
             setCell(sheet.getRow(2), 1, tonPlan, style);
             setCell(sheet.createRow(3), 0, "تن عبوری عملکرد", style);
@@ -126,8 +122,8 @@ public class ODFreight extends OutPut {
                 }
             }
 
-            setCell(sheet.getRow(0), 2, b, style);
-            setCell(sheet.getRow(1), 2, a, style);
+            setCell(sheet.getRow(0), 2, destination, style);
+            setCell(sheet.getRow(1), 2, origin, style);
             setCell(sheet.getRow(2), 2, tonPlan, style);
             setCell(sheet.getRow(3), 2, tonOperation, style);
             setCell(sheet.getRow(4), 2, wagonPlan, style);

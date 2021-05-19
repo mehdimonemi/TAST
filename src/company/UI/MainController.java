@@ -98,12 +98,13 @@ public class MainController {
                     @Override
                     protected Void call() throws Exception {
 
+                        String[] finalCargoOrigin = new String[2];
+                        String[] finalCargoDestination = new String[2];
+
                         boolean finalCheck = true;
                         if (cargoForODTab.isSelected()) {
-                            String[] finalCargoOrigin =
-                                    assignmentClass.findName(cargoOrigin.getText());
-                            String[] finalCargoDestination =
-                                    assignmentClass.findName(cargoDestination.getText());
+                            finalCargoOrigin = assignmentClass.findName(cargoOrigin.getText());
+                            finalCargoDestination = assignmentClass.findName(cargoDestination.getText());
                             if (cargoOrigin.getText().equals("null") || cargoDestination.getText().equals("null")) {
                                 processState = false;
                                 finalCheck = false;
@@ -163,7 +164,10 @@ public class MainController {
 
                                     new ODFreight(outPutDirectory + outPutFileName, assignmentClass.blocks,
                                             assignmentClass.commodities, assignmentClass.pathExceptions,
-                                            assignmentClass.stations, cargoOrigin.getText(), cargoDestination.getText());
+                                            assignmentClass.stations,
+                                            finalCargoOrigin[0], finalCargoDestination[0],
+                                            Integer.parseInt(finalCargoOrigin[1]),
+                                            Integer.parseInt(finalCargoDestination[1]));
                                 }
 
                             } else {
