@@ -60,8 +60,8 @@ public class OutputCargoType extends OutPut {
             double totalTonPlan = 0;
             double totalTonKilometerPlan = 0;
             for (Commodity commodity : commodities) {
-                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
-                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan();
+                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getTon();
+                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometer();
             }
 
             int rowCounter = 2;
@@ -82,16 +82,16 @@ public class OutputCargoType extends OutPut {
                             setCell(row, 2, commodity.getOrigin(), style);
                             setCell(row, 3, commodity.getDestination(), style);
                             setCell(row, 4, commodity.getCargoType(), style);
-                            setCell(row, 5, commodity.getHowMuchIsAllowed()*commodity.getPlanTon(), style);
-                            setCell(row, 6, commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan(), style);
+                            setCell(row, 5, commodity.getHowMuchIsAllowed()*commodity.getTon(), style);
+                            setCell(row, 6, commodity.getHowMuchIsAllowed()*commodity.getTonKilometer(), style);
                             setCell(row, 7, commodity.getWagonType(), style);
                             setCell(row, 8, "", style);
                             setCell(row, 9, "", style);
                             setCell(row, 10, "", style);
                             setCell(row, 11, "", style);
 
-                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan();
-                            tonMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
+                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getTonKilometer();
+                            tonMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getTon();
 
                             rowCounter++;
                         }

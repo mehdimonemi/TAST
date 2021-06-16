@@ -10,7 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.TreeSet;
 
 /**
@@ -64,7 +63,7 @@ public class OutputLoadUnloadOD extends OutPut {
                     double ton = 0;
                     for (Commodity commodity : commodities) {
                         if (commodity.getOriginDistrict().equals(district) && commodity.getDestinationDistrict().equals(b)) {
-                            ton += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
+                            ton += commodity.getHowMuchIsAllowed() * commodity.getTon();
                         }
                     }
 
@@ -98,12 +97,12 @@ public class OutputLoadUnloadOD extends OutPut {
                         if (commodity.getOriginDistrict().equals(district)) {
                             for (Block block : commodity.getBlocks()) {
                                 if (block.getDistrict().equals(b)) {
-                                    tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() * block.getLength());
+                                    tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getTon() * block.getLength());
                                 }
                             }
                             //add ton kilometer saier
                             if (commodity.getBlocks().size() == 0) {
-                                tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() * commodity.getDistance());
+                                tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getTon() * commodity.getDistance());
 
                             }
                         }

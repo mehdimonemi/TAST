@@ -7,12 +7,14 @@ import java.util.ArrayList;
  */
 public class Station {
     private int id;
+    private boolean specialTag;//for those station name that duplicate like roodshoor
     private String name;
     private String district;
     private ArrayList <String> alterNames = new ArrayList<>();
 
-    public Station(int id, String name, String district) {
+    public Station(int id, String name, boolean specialTag, String district) {
         this.name = name;
+        this.specialTag = specialTag;
         this.district = district;
         this.id = id;
     }
@@ -27,6 +29,14 @@ public class Station {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isSpecialTag() {
+        return specialTag;
+    }
+
+    public void setSpecialTag(boolean specialTag) {
+        this.specialTag = specialTag;
     }
 
     public void setId(int id) {

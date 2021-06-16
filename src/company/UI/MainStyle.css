@@ -1,39 +1,30 @@
 .root {
     -fx-font-size: 12;
-    -jfx-primary-color: #d24726;
-    -jfx-light-primary-color: #f0623e;
-    -jfx-dark-primary-color: #b83d1f;
-    /*-fx-focus-color: rgb(222, 49, 15);*/
-    -jfx-secondary-color: #26b0d2;
-    -jfx-light-secondary-color: #e2f7fe;
-    -jfx-dark-secondary-color: #056471;
-    -fx-button : #b0d226;
-    -fx-background-color: -jfx-light-secondary-color;
-}
-
-#dialogPan {
-    -fx-font-size: 12;
-    -jfx-secondary-color: #26b0d2;
-    -jfx-light-secondary-color: #e2f7fe;
-    -jfx-dark-secondary-color: #056471;
-    -fx-button : #b0d226;
+    -jfx-color1: #516360;
+    -jfx-color2: #6D9387;
+    -jfx-color3: #CEDBD8;
+    -jfx-color4: #EDD8CA;
+    -jfx-color5: #d3c6b7;
+    -fx-button: -jfx-color2;
+    -fx-background-color: -jfx-color3;
 }
 
 /*!********************************************************************************/
 /**                                                                             **/
 /** JFX Tab Pane                                                                **/
 /**                                                                             **/
+
 .jfx-tab-pane .headers-region {
-    -fx-background-color: -jfx-primary-color;
-    -fx-focus-color: -jfx-light-primary-color;
+    -fx-background-color: -jfx-color1;
+    -fx-focus-color: -jfx-color2;
 }
 
 .jfx-tab-pane .tab-header-background {
-    -fx-background-color: -jfx-primary-color;
+    -fx-background-color: -jfx-color1;
 }
 
 .jfx-tab-pane .tab-selected-line {
-    -fx-stroke: -jfx-secondary-color;
+    -fx-stroke: -jfx-color4;
 
 }
 
@@ -42,19 +33,20 @@
 }
 
 .jfx-tab-pane .tab-header-area .jfx-rippler {
-    -jfx-rippler-fill: -jfx-light-secondary-color;
+    -jfx-rippler-fill: -jfx-color4;
 }
 
 .tab-selected-line {
-    -fx-background-color: -jfx-secondary-color;
+    -fx-background-color: -jfx-color4;
 }
 
 /*******************************************************************************!*/
 
 .jfx-button {
+    -fx-font-weight: BOld;
     -jfx-button-type: RAISED;
-    -fx-background-color:-fx-button;
-    -fx-text-fill: #000000;
+    -fx-background-color: -fx-button;
+    -fx-text-fill: -jfx-color3;
 }
 
 .button {
@@ -64,19 +56,40 @@
 }
 
 .text-area {
-    -fx-accent: rgb(100, 178, 234);
     -fx-font-size: 12;
-    -fx-background-color: #ffffff;
-
+    -fx-background-color: -jfx-color3;
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-border-insets: 0;
     -fx-border-radius: 2;
-    -fx-border-color: #0e5006;
+    -fx-border-color: -jfx-color1;
 }
 
-.text-field {
-    -fx-accent: rgb(100, 178, 234);
-    -fx-min-height: 30;
-    -fx-max-height: 30;
+.jfx-check-box {
+    -jfx-checked-color: -jfx-color5;
 }
+
+.jfx-radio-button {
+    -jfx-selected-color: -jfx-color5;
+}
+
+.jfx-text-field {
+    -fx-border-radius: 10px;
+    -fx-border-color: -jfx-color1;
+    -fx-font-family: "B Nazanin";
+    -fx-border-style: solid;
+}
+
+.jfx-text-field > .input-line,
+.jfx-text-area > .input-line {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+    -fx-translate-y: 0px;
+}
+
+.jfx-text-field > .input-focused-line,
+.jfx-text-area > .input-focused-line {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+}
+

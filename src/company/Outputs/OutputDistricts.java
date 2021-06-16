@@ -69,10 +69,10 @@ public class OutputDistricts extends OutPut {
                 double bargiriWagonDay = 0.0;
                 for (Commodity commodity : commodities) {
                     if (district.equals(commodity.getOriginDistrict())) {
-                        bargiriTon += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                        bargiriTonDay += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() / period);
-                        bargiriWagon += commodity.getHowMuchIsAllowed() * commodity.getPlanWagon();
-                        bargiriWagonDay += commodity.getHowMuchIsAllowed() * (commodity.getPlanWagon() / period);
+                        bargiriTon += commodity.getHowMuchIsAllowed() * commodity.getTon();
+                        bargiriTonDay += commodity.getHowMuchIsAllowed() * (commodity.getTon() / period);
+                        bargiriWagon += commodity.getHowMuchIsAllowed() * commodity.getWagon();
+                        bargiriWagonDay += commodity.getHowMuchIsAllowed() * (commodity.getWagon() / period);
                     }
                 }
 
@@ -88,10 +88,10 @@ public class OutputDistricts extends OutPut {
                 double takhlieWagonDay = 0.0;
                 for (Commodity commodity : commodities) {
                     if (district.equals(commodity.getDestinationDistrict())) {
-                        takhlieTon += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                        takhlieTonDay += commodity.getHowMuchIsAllowed() * (commodity.getPlanTon() / period);
-                        takhlieWagon += commodity.getHowMuchIsAllowed() * commodity.getPlanWagon();
-                        takhlieWagonDay += commodity.getHowMuchIsAllowed() * (commodity.getPlanWagon() / period);
+                        takhlieTon += commodity.getHowMuchIsAllowed() * commodity.getTon();
+                        takhlieTonDay += commodity.getHowMuchIsAllowed() * (commodity.getTon() / period);
+                        takhlieWagon += commodity.getHowMuchIsAllowed() * commodity.getWagon();
+                        takhlieWagonDay += commodity.getHowMuchIsAllowed() * (commodity.getWagon() / period);
                     }
                 }
 
@@ -106,15 +106,15 @@ public class OutputDistricts extends OutPut {
                 for (Commodity commodity : commodities) {
                     for (Block block : commodity.getBlocks()) {
                         if (block.getDistrict().equals(district)&& !(commodity.getDistance()==150)) {
-                            tonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getPlanTon()));
-                            tonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getPlanTon())) / period);
+                            tonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getTon()));
+                            tonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getTon())) / period);
                             commodity.setCheck(commodity.getCheck()+1);
                         }
                     }
                     //add ton kilometer saier
                     if(commodity.getDistance()==150 && commodity.getOriginDistrict().equals(district)){
-                        tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getPlanTon()));
-                        tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getPlanTon())) / period);
+                        tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getTon()));
+                        tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getTon())) / period);
                         commodity.setCheck(0);
                     }
                 }
@@ -128,8 +128,8 @@ public class OutputDistricts extends OutPut {
                 tonKilometerDay = 0.0;
                 for (Commodity commodity : commodities) {
                     if (district.equals(commodity.getOriginDistrict())) {
-                        tonKilometer += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                        tonKilometerDay += commodity.getHowMuchIsAllowed() * (commodity.getTonKilometerPlan() / period);
+                        tonKilometer += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
+                        tonKilometerDay += commodity.getHowMuchIsAllowed() * (commodity.getTonKilometer() / period);
                     }
                 }
 
@@ -144,8 +144,8 @@ public class OutputDistricts extends OutPut {
                 for (Commodity commodity : commodities) {
                     for (Block block : commodity.getBlocks()) {
                         if (block.getDistrict().equals(district)) {
-                            wagon += commodity.getHowMuchIsAllowed() * commodity.getPlanWagon();
-                            wagonDay += commodity.getHowMuchIsAllowed() * (commodity.getPlanWagon() / period);
+                            wagon += commodity.getHowMuchIsAllowed() * commodity.getWagon();
+                            wagonDay += commodity.getHowMuchIsAllowed() * (commodity.getWagon() / period);
                             continue ComodityLoop;
                         }
                     }
@@ -161,14 +161,14 @@ public class OutputDistricts extends OutPut {
                 for (Commodity commodity : commodities) {
                     for (Block block : commodity.getBlocks()) {
                         if (block.getDistrict().equals(district)) {
-                            wagonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getPlanWagon()));
-                            wagonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getPlanWagon())) / period);
+                            wagonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getWagon()));
+                            wagonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getWagon())) / period);
                         }
                     }
                     //add wagon kilometer saier
                     if(commodity.getBlocks().size()==0){
-                        tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getPlanWagon()));
-                        tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getPlanWagon())) / period);
+                        tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getWagon()));
+                        tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getWagon())) / period);
                     }
                 }
                 setCell(row, 15, wagonKilometer, style);

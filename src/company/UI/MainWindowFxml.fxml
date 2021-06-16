@@ -56,10 +56,10 @@
                 </Label>
                 <HBox alignment="CENTER" spacing="5">
                     <Label text="Origin"/>
-                    <JFXTextField fx:id="cargoOrigin"/>
+                    <JFXTextField fx:id="cargoOrigin" alignment="CENTER"/>
                     <Region prefWidth="30"/>
                     <Label text="Destination"/>
-                    <JFXTextField fx:id="cargoDestination"/>
+                    <JFXTextField fx:id="cargoDestination" alignment="CENTER"/>
                 </HBox>
             </VBox>
         </Tab>

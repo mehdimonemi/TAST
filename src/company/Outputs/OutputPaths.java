@@ -48,9 +48,9 @@ public class OutputPaths extends OutPut {
                 setCell(row, 0, commodity.getOrigin(), style);
                 setCell(row, 1, commodity.getDestination(), style);
                 setCell(row, 2, commodity.getDistance(), style);
-                setCell(row, 3, commodity.getPlanTon()*commodity.getHowMuchIsAllowed(), style);
-                setCell(row, 4, commodity.getTonKilometerPlan()*commodity.getHowMuchIsAllowed(), style);
-                setCell(row, 5, commodity.getPlanWagon()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 3, commodity.getTon()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 4, commodity.getTonKilometer()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 5, commodity.getWagon()*commodity.getHowMuchIsAllowed(), style);
 
                 for (int i = 0; i < commodity.getBlocks().size(); i++) {
                     setCell(row, i + 6, commodity.getBlocks().get(i).getOrigin(), style);

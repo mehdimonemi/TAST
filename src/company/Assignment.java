@@ -11,12 +11,16 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.CpxException;
 import ilog.cplex.IloCplex;
+import org.apache.poi.EmptyFileException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -46,7 +50,7 @@ public class Assignment {
         PrintStream logFile;
 
         try (PrintStream printStream = logFile = new PrintStream(new FileOutputStream("log.txt"))) {
-            System.setOut(logFile);
+//            System.setOut(logFile);
 
             //before start solving models we should sure the commodities are empty from previews result
             resetCommoditiesResult();
@@ -67,8 +71,7 @@ public class Assignment {
 
             commodity.setHowMuchIsAllowed(1);
             commodity.setDistance(0);
-            commodity.setTonKilometerOperation(0);
-            commodity.setTonKilometerPlan(0);
+            commodity.setTonKilometer(0);
             commodity.setBlocks(new ArrayList<>());
         }
 
@@ -95,19 +98,15 @@ public class Assignment {
             for (Commodity commodity : commodities) {
                 if (commodity.hasBlock(blocks.get(i))) {
                     if (blocks.get(i).getDirection() == 1) {
-                        blocks.get(i).setDemandWentPlanTon(blocks.get(i).getDemandWentPlanTon() + commodity.getPlanTon());
-                        blocks.get(i).setDemandWentOperationTon(blocks.get(i).getDemandWentOperationTon() + commodity.getOperationTon());
-                        blocks.get(i).setDemandWentPlanWagon(blocks.get(i).getDemandWentPlanWagon() + commodity.getPlanWagon());
-                        blocks.get(i).setDemandWentOperatoinWagon(blocks.get(i).getDemandWentOperatoinWagon() + commodity.getOperationWagon());
+                        blocks.get(i).setDemandWentPlanTon(blocks.get(i).getDemandWentPlanTon() + commodity.getTon());
+                        blocks.get(i).setDemandWentPlanWagon(blocks.get(i).getDemandWentPlanWagon() + commodity.getWagon());
 
-                        blocks.get(i).setDemandWentPlanTonKilometer(blocks.get(i).getDemandWentPlanTonKilometer() + commodity.getTonKilometerPlan());
+                        blocks.get(i).setDemandWentPlanTonKilometer(blocks.get(i).getDemandWentPlanTonKilometer() + commodity.getTonKilometer());
                     } else {
-                        blocks.get(i - 1).setDemandBackPlanTon(blocks.get(i - 1).getDemandBackPlanTon() + commodity.getPlanTon());
-                        blocks.get(i - 1).setDemandBackOperationTon(blocks.get(i - 1).getDemandBackOperationTon() + commodity.getOperationTon());
-                        blocks.get(i - 1).setDemandBackPlanWagon(blocks.get(i - 1).getDemandBackPlanWagon() + commodity.getPlanWagon());
-                        blocks.get(i - 1).setDemandBackOperationWagon(blocks.get(i - 1).getDemandBackOperationWagon() + commodity.getOperationWagon());
+                        blocks.get(i - 1).setDemandBackPlanTon(blocks.get(i - 1).getDemandBackPlanTon() + commodity.getTon());
+                        blocks.get(i - 1).setDemandBackPlanWagon(blocks.get(i - 1).getDemandBackPlanWagon() + commodity.getWagon());
 
-                        blocks.get(i - 1).setDemandBackPlanTonKilometer(blocks.get(i - 1).getDemandBackPlanTonKilometer() + commodity.getTonKilometerPlan());
+                        blocks.get(i - 1).setDemandBackPlanTonKilometer(blocks.get(i - 1).getDemandBackPlanTonKilometer() + commodity.getTonKilometer());
                     }
                 }
             }
@@ -123,11 +122,9 @@ public class Assignment {
             if (a.equals(b) && !a.contains("سایر")) {
                 mainController.alert("same OD for " + commodity);
                 commodity.setDistance(150);
-                commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
-                commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
+                commodity.setTonKilometer(150 * commodity.getTon());
                 continue;
             }
-
             doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b);
 
         }
@@ -231,8 +228,7 @@ public class Assignment {
             try {
                 if (model.solve()) {
                     commodity.setDistance(model.getObjValue());
-                    commodity.setTonKilometerOperation(model.getObjValue() * commodity.getOperationTon());
-                    commodity.setTonKilometerPlan(model.getObjValue() * commodity.getPlanTon());
+                    commodity.setTonKilometer(model.getObjValue() * commodity.getTon());
                     for (int i = 0; i < blocks.size(); i++) {
                         if (model.getValue(X[i]) > 0.5) {
                             commodity.getBlocks().add(blocks.get(i));
@@ -266,15 +262,13 @@ public class Assignment {
                     constraint = null;
                 } else {
                     commodity.setDistance(150);
-                    commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
-                    commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
+                    commodity.setTonKilometer(150 * commodity.getTon());
                     mainController.alert("No path for " + commodity);
                     model.clearModel();
                 }
                 if (commodity.getDistance() < 150) {
                     commodity.setDistance(150);
-                    commodity.setTonKilometerOperation(150 * commodity.getOperationTon());
-                    commodity.setTonKilometerPlan(150 * commodity.getPlanTon());
+                    commodity.setTonKilometer(150 * commodity.getTon());
                     model.clearModel();
                 }
                 return commodity.getBlocks();
@@ -314,15 +308,15 @@ public class Assignment {
 
                 Station station = new Station((int) row.getCell(0).getNumericCellValue(),
                         row.getCell(1).getStringCellValue(),
-                        row.getCell(2).getStringCellValue());
-                if (!row.getCell(2).getStringCellValue().equals("null"))
-                    districts.add(row.getCell(2).getStringCellValue());
+                        row.getCell(2).getBooleanCellValue(),
+                        row.getCell(3).getStringCellValue());
+                if (!row.getCell(3).getStringCellValue().equals("null"))
+                    districts.add(row.getCell(3).getStringCellValue());
 
-                for (int j = 4; j < row.getLastCellNum(); j++) {
+                for (int j = 5; j < row.getLastCellNum(); j++) {
                     station.getAlterNames().add(row.getCell(j).getStringCellValue());
                 }
                 stations.add(station);
-
             }
 
             // read blocks data
@@ -431,12 +425,15 @@ public class Assignment {
         }
 
         outPut.setMassageForAnalyseNames("origin and destination");
-        FileInputStream dataFile = null;
+        FileOutputStream file = null;
         XSSFWorkbook data = null;
-        try {
-            dataFile = new FileInputStream(outPutDirectory + "/Data.xlsx");
+        try (FileInputStream dataFile = new FileInputStream(outPutDirectory + "/Data.xlsx")) {
             data = new XSSFWorkbook(dataFile);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
 
+        try {
             //read commodities data
             XSSFSheet sheet3 = data.getSheetAt(2);
             for (int i = Integer.parseInt(result[0]); i <= sheet3.getLastRowNum(); i++) {
@@ -462,37 +459,45 @@ public class Assignment {
                             findName(result[2])[0],
                             row.getCell(2).getNumericCellValue(),
                             row.getCell(3).getNumericCellValue(),
-                            row.getCell(4).getNumericCellValue(),
-                            row.getCell(5).getNumericCellValue(),
+                            row.getCell(4).getStringCellValue(),
+                            row.getCell(5).getStringCellValue(),
                             row.getCell(6).getStringCellValue(),
                             row.getCell(7).getStringCellValue(),
-                            row.getCell(8).getStringCellValue(),
-                            row.getCell(9).getStringCellValue(),
                             stations);
                     commodities.add(commodity);
-                    updateAlterNames(result, data, outPutDirectory + "/Data.xlsx");
+
+                    //we update alter names if only the station name is not duplicate (special)
+                    if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag() ||
+                            !stations.get(Integer.parseInt(findName(result[2])[1])).isSpecialTag()
+                    ) {
+                        updateAlterNames(result, data);
+                        (new File(outPutDirectory + "/Data.xlsx")).delete();
+                        file = new FileOutputStream(outPutDirectory + "/Data.xlsx");
+                        data.write(file);
+                        file.flush();
+                        file.close();
+                    }
+
                 } else {
                     Commodity commodity = new Commodity(
                             findName(row.getCell(0).getStringCellValue().trim())[0],
                             findName(row.getCell(1).getStringCellValue().trim())[0],
                             row.getCell(2).getNumericCellValue(),
                             row.getCell(3).getNumericCellValue(),
-                            row.getCell(4).getNumericCellValue(),
-                            row.getCell(5).getNumericCellValue(),
+                            row.getCell(4).getStringCellValue(),
+                            row.getCell(5).getStringCellValue(),
                             row.getCell(6).getStringCellValue(),
                             row.getCell(7).getStringCellValue(),
-                            row.getCell(8).getStringCellValue(),
-                            row.getCell(9).getStringCellValue(),
                             stations);
                     commodities.add(commodity);
                 }
-                wagons.add(row.getCell(6).getStringCellValue().toLowerCase());
+                wagons.add(row.getCell(4).getStringCellValue().toLowerCase());
 
-                transportKinds.add(row.getCell(7).getStringCellValue().toLowerCase());
+                transportKinds.add(row.getCell(5).getStringCellValue().toLowerCase());
 
-                mainCargoTypes.add(row.getCell(8).getStringCellValue().toLowerCase());
+                mainCargoTypes.add(row.getCell(6).getStringCellValue().toLowerCase());
 
-                cargoTypes.add(row.getCell(9).getStringCellValue().toLowerCase());
+                cargoTypes.add(row.getCell(7).getStringCellValue().toLowerCase());
 
             }
 
@@ -504,13 +509,6 @@ public class Assignment {
         } catch (IOException | NullPointerException | IllegalStateException e) {
             outPut.failDisplay(e);
         } finally {
-            if (dataFile != null) {
-                try {
-                    dataFile.close();
-                } catch (IOException e) {
-                    outPut.failDisplay(e);
-                }
-            }
             if (data != null) {
                 try {
                     data.close();
@@ -522,13 +520,12 @@ public class Assignment {
         return result;
     }
 
-    private void updateAlterNames(String[] result, XSSFWorkbook workBook, String filePath) {
-
-        FileOutputStream outFile;
+    private void updateAlterNames(String[] result, XSSFWorkbook workBook) {
 
         String correctOriginName = findName(result[1])[0];
         String correctDestinationName = findName(result[2])[0];
         try {
+
             XSSFSheet sheet1 = workBook.getSheetAt(0);
 
             //update excel
@@ -538,7 +535,7 @@ public class Assignment {
                 XSSFRow row = sheet1.getRow(i + 1);
                 if (row.getCell(1).getStringCellValue().equals(correctOriginName)) {
                     boolean check = true;
-                    for (int j = 4; j < row.getLastCellNum(); j++) {
+                    for (int j = 5; j < row.getLastCellNum(); j++) {
                         if (result[3].equals(row.getCell(j).getStringCellValue()))
                             check = false;
                     }
@@ -549,7 +546,7 @@ public class Assignment {
                 }
                 if (row.getCell(1).getStringCellValue().equals(correctDestinationName)) {
                     boolean check = true;
-                    for (int j = 4; j < row.getLastCellNum(); j++) {
+                    for (int j = 5; j < row.getLastCellNum(); j++) {
                         if (result[4].equals(row.getCell(j).getStringCellValue()))
                             check = false;
                     }
@@ -591,12 +588,7 @@ public class Assignment {
                     }
                 }
             }
-            outFile = new FileOutputStream(new File(filePath));
-            workBook.write(outFile);
-            outFile.flush();
-            outFile.close();
-            workBook.close();
-        } catch (IOException | NullPointerException | IllegalStateException e) {
+        } catch (NullPointerException | IllegalStateException e) {
             outPut.failDisplay(e);
         }
     }
@@ -636,7 +628,7 @@ public class Assignment {
 
 
             for (int x = 0; x < commodities.size(); x++) {
-                goalFunction = model.sum(goalFunction, model.prod(X[x], commodities.get(x).getTonKilometerPlan()));
+                goalFunction = model.sum(goalFunction, model.prod(X[x], commodities.get(x).getTonKilometer()));
             }
             model.addMaximize(goalFunction);
 
@@ -647,14 +639,14 @@ public class Assignment {
                     for (int x = 0; x < commodities.size(); x++) {
                         if (commodities.get(x).hasBlock(blocks.get(i)) || commodities.get(x).hasBlock(blocks.get(i + 1))) {
                             Commodity commodity = commodities.get(x);
-                            constraint = model.sum(constraint, model.prod(X[x], commodities.get(x).getPlanTon()));
+                            constraint = model.sum(constraint, model.prod(X[x], commodities.get(x).getTon()));
                             flag = true;
                         }
                     }
                 } else if (blocks.get(i).getTrack() == 2) {
                     for (int x = 0; x < commodities.size(); x++) {
                         if (commodities.get(x).hasBlock(blocks.get(i))) {
-                            constraint = model.sum(constraint, model.prod(X[x], commodities.get(x).getPlanTon()));
+                            constraint = model.sum(constraint, model.prod(X[x], commodities.get(x).getTon()));
                             flag = true;
                         }
                     }
@@ -688,19 +680,15 @@ public class Assignment {
                 if (commodity.getHowMuchIsAllowed() > 0) {
                     if (commodity.hasBlock(blocks.get(i))) {
                         if (blocks.get(i).getDirection() == 1) {
-                            blocks.get(i).setDemandWentPlanTon(blocks.get(i).getDemandWentPlanTon() + (commodity.getHowMuchIsAllowed() * commodity.getPlanTon()));
-                            blocks.get(i).setDemandWentOperationTon(blocks.get(i).getDemandWentOperationTon() + (commodity.getHowMuchIsAllowed() * commodity.getOperationTon()));
-                            blocks.get(i).setDemandWentPlanWagon(blocks.get(i).getDemandWentPlanWagon() + (commodity.getHowMuchIsAllowed() * commodity.getPlanWagon()));
-                            blocks.get(i).setDemandWentOperatoinWagon(blocks.get(i).getDemandWentOperatoinWagon() + commodity.getHowMuchIsAllowed() * commodity.getOperationWagon());
+                            blocks.get(i).setDemandWentPlanTon(blocks.get(i).getDemandWentPlanTon() + (commodity.getHowMuchIsAllowed() * commodity.getTon()));
+                            blocks.get(i).setDemandWentPlanWagon(blocks.get(i).getDemandWentPlanWagon() + (commodity.getHowMuchIsAllowed() * commodity.getWagon()));
 
-                            blocks.get(i).setDemandWentPlanTonKilometer(blocks.get(i).getDemandWentPlanTonKilometer() + (commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan()));
+                            blocks.get(i).setDemandWentPlanTonKilometer(blocks.get(i).getDemandWentPlanTonKilometer() + (commodity.getHowMuchIsAllowed() * commodity.getTonKilometer()));
                         } else {
-                            blocks.get(i - 1).setDemandBackPlanTon(blocks.get(i - 1).getDemandBackPlanTon() + (commodity.getHowMuchIsAllowed() * commodity.getPlanTon()));
-                            blocks.get(i - 1).setDemandBackOperationTon(blocks.get(i - 1).getDemandBackOperationTon() + (commodity.getHowMuchIsAllowed() * commodity.getOperationTon()));
-                            blocks.get(i - 1).setDemandBackPlanWagon(blocks.get(i - 1).getDemandBackPlanWagon() + (commodity.getHowMuchIsAllowed() * commodity.getPlanWagon()));
-                            blocks.get(i - 1).setDemandBackOperationWagon(blocks.get(i - 1).getDemandBackOperationWagon() + (commodity.getHowMuchIsAllowed() * commodity.getOperationWagon()));
+                            blocks.get(i - 1).setDemandBackPlanTon(blocks.get(i - 1).getDemandBackPlanTon() + (commodity.getHowMuchIsAllowed() * commodity.getTon()));
+                            blocks.get(i - 1).setDemandBackPlanWagon(blocks.get(i - 1).getDemandBackPlanWagon() + (commodity.getHowMuchIsAllowed() * commodity.getWagon()));
 
-                            blocks.get(i - 1).setDemandBackPlanTonKilometer(blocks.get(i - 1).getDemandBackPlanTonKilometer() + (commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan()));
+                            blocks.get(i - 1).setDemandBackPlanTonKilometer(blocks.get(i - 1).getDemandBackPlanTonKilometer() + (commodity.getHowMuchIsAllowed() * commodity.getTonKilometer()));
                         }
                     }
                 }

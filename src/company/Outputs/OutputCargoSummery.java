@@ -53,8 +53,8 @@ public class OutputCargoSummery extends OutPut {
             double totalTonPlan = 0;
             double totalTonKilometerPlan = 0;
             for (Commodity commodity : commodities) {
-                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
-                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan();
+                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getTon();
+                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometer();
             }
 
             int rowCounter = 2;
@@ -75,8 +75,8 @@ public class OutputCargoSummery extends OutPut {
                                 }
                                 flag = false;
                             }
-                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                            tonMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
+                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
+                            tonMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getTon();
                         }
                     }
                 }

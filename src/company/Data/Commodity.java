@@ -24,21 +24,18 @@ public class Commodity {
     private String cargoType;
     private String wagonType;
 
-    private double operationWagon;
-    private double operationTon;
-    private double planWagon;
-    private double planTon;
+    private double Wagon;
+    private double Ton;
 
     private double distance = 0;
 
-    private double tonKilometerPlan;
-    private double tonKilometerOperation;
+    private double tonKilometer;
     private ArrayList<Block> blocks = new ArrayList<>();
 
     private int check = 0;
 
-    public Commodity(String origin, String destination, double volumeWagon, double volumeTon,
-                     double planWagon, double planTon, String wagonType, String kind, String mainCargoType, String cargoType,
+    public Commodity(String origin, String destination, double Wagon, double Ton, String wagonType,
+                     String kind, String mainCargoType, String cargoType,
                      ArrayList<Station> stations) {
         this.tag =commodityCounter++;
         this.origin = origin;
@@ -47,10 +44,8 @@ public class Commodity {
         setDestinationId(stations);
         setOriginDistrict(stations);
         setDestinationDistrict(stations);
-        this.operationWagon = volumeWagon;
-        this.operationTon = volumeTon;
-        this.planWagon = planWagon;
-        this.planTon = planTon;
+        this.Wagon = Wagon;
+        this.Ton = Ton;
         this.wagonType = wagonType;
         this.transportKind = kind;
         this.mainCargoType = mainCargoType;
@@ -125,36 +120,20 @@ public class Commodity {
         this.blocks = blocks;
     }
 
-    public double getOperationWagon() {
-        return operationWagon;
+    public double getWagon() {
+        return Wagon;
     }
 
-    public void setOperationWagon(double operationWagon) {
-        this.operationWagon = operationWagon;
+    public void setWagon(double wagon) {
+        this.Wagon = wagon;
     }
 
-    public double getOperationTon() {
-        return operationTon;
+    public double getTon() {
+        return Ton;
     }
 
-    public void setOperationTon(double operationTon) {
-        this.operationTon = operationTon;
-    }
-
-    public double getPlanWagon() {
-        return planWagon;
-    }
-
-    public void setPlanWagon(double planWagon) {
-        this.planWagon = planWagon;
-    }
-
-    public double getPlanTon() {
-        return planTon;
-    }
-
-    public void setPlanTon(double planTon) {
-        this.planTon = planTon;
+    public void setTon(double ton) {
+        this.Ton = ton;
     }
 
     public double getDistance() {
@@ -165,20 +144,12 @@ public class Commodity {
         this.distance = distance;
     }
 
-    public double getTonKilometerPlan() {
-        return tonKilometerPlan;
+    public double getTonKilometer() {
+        return tonKilometer;
     }
 
-    public void setTonKilometerPlan(double tonKilometerPlan) {
-        this.tonKilometerPlan = tonKilometerPlan;
-    }
-
-    public double getTonKilometerOperation() {
-        return tonKilometerOperation;
-    }
-
-    public void setTonKilometerOperation(double tonKilometerOperation) {
-        this.tonKilometerOperation = tonKilometerOperation;
+    public void setTonKilometer(double tonKilometer) {
+        this.tonKilometer = tonKilometer;
     }
 
     public String getTransportKind() {
@@ -258,6 +229,6 @@ public class Commodity {
 
     @Override
     public String toString() {
-        return "Commodity "+ tag +" {" + origin + "--" + destination + ", Ton='" + planTon + "}";
+        return "Commodity "+ tag +" {" + origin + "--" + destination + ", Ton='" + Ton + "}";
     }
 }

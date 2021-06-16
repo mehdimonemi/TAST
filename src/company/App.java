@@ -42,4 +42,8 @@ public class App extends Application {
         primaryStage.getIcons().add(icon);
         primaryStage.show();
     }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
