@@ -6,25 +6,25 @@ import java.util.ArrayList;
  * Created by Monemi_M on 01/10/2018.
  */
 public class PathExceptions {
-    ArrayList<String> origins = new ArrayList<>();
-    ArrayList<String> destinations = new ArrayList<>();
+    ArrayList<String> originDistricts = new ArrayList<>();
+    ArrayList<String> destinationDistricts = new ArrayList<>();
     ArrayList<Block> blocksMustbe = new ArrayList<>();
 
 
-    public ArrayList<String> getOrigins() {
-        return origins;
+    public ArrayList<String> getOriginDistricts() {
+        return originDistricts;
     }
 
-    public void setOrigins(ArrayList<String> origins) {
-        this.origins = origins;
+    public void setOriginDistricts(ArrayList<String> originDistricts) {
+        this.originDistricts = originDistricts;
     }
 
-    public ArrayList<String> getDestinations() {
-        return destinations;
+    public ArrayList<String> getDestinationDistricts() {
+        return destinationDistricts;
     }
 
-    public void setDestinations(ArrayList<String> destinations) {
-        this.destinations = destinations;
+    public void setDestinationDistricts(ArrayList<String> destinationDistricts) {
+        this.destinationDistricts = destinationDistricts;
     }
 
     public ArrayList<Block> getBlocksMustbe() {
@@ -36,8 +36,8 @@ public class PathExceptions {
     }
 
     public int isException(String origin, String destination){
-        for(String a:origins){
-            for (String b:destinations){
+        for(String a: originDistricts){
+            for (String b: destinationDistricts){
                 if(a.equals(origin) && b.equals((destination))){
                     return 1;
                 }

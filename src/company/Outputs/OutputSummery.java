@@ -11,7 +11,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
-import static company.Main.*;
+import static company.Assignment.*;
 
 /**
  * Created by Monemi_M on 01/21/2018.
@@ -25,7 +25,7 @@ public class OutputSummery extends OutPut {
 
         setMassageForWritingFile("Summery");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -44,16 +44,15 @@ public class OutputSummery extends OutPut {
 
             XSSFRow row1 = sheet.getRow(2);
             XSSFRow row2 = sheet.getRow(3);
-            Double temp1 = 0.0;
-            Double temp2 = 0.0;
-            Double temp3 = 0.0;
-            Double temp4 = 0.0;
+            double temp1 = 0.0;
+            double temp2 = 0.0;
+            double temp3 = 0.0;
+            double temp4 = 0.0;
             for (Commodity commodity : commodities) {
-                temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                temp2 += commodity.getOperationTon();
-                temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                temp4 += commodity.getTonKilometerOperation();
+                temp1 += commodity.getHowMuchIsAllowed() * commodity.getTon();
+                temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
             }
+
             setCell(row1, 3, temp1, style);
             setCell(row1, 4, temp2, style);
             increasePercentage(row1, 5, row1.getCell(3), row1.getCell(4), percentageStyle);
@@ -69,10 +68,8 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("داخلی")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp2 += commodity.getOperationTon();
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp4 += commodity.getTonKilometerOperation();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTon();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
             }
             setCell(row1, 3, temp1, style);
@@ -91,12 +88,10 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("صادرات (واگن های داخلی)")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp2 += commodity.getOperationTon();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTon();
                 }
                 if (commodity.getTransportKind().equals("صادرات (با واگن های خارجی)")) {
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp4 += commodity.getOperationTon();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTon();
                 }
             }
 
@@ -116,12 +111,10 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("صادرات (واگن های داخلی)")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp2 += commodity.getTonKilometerOperation();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
                 if (commodity.getTransportKind().equals("صادرات (با واگن های خارجی)")) {
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp4 += commodity.getTonKilometerOperation();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
             }
             setCell(row1, 3, temp1, style);
@@ -140,12 +133,10 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("واردات (واگن های داخلی)")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp2 += commodity.getOperationTon();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTon();
                 }
                 if (commodity.getTransportKind().equals("واردات (با واگن های خارجی)")) {
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp4 += commodity.getOperationTon();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTon();
                 }
             }
             setCell(row1, 3, temp1, style);
@@ -164,12 +155,10 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("واردات (واگن های داخلی)")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp2 += commodity.getTonKilometerOperation();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
                 if (commodity.getTransportKind().equals("واردات (با واگن های خارجی)")) {
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp4 += commodity.getTonKilometerOperation();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
             }
             setCell(row1, 3, temp1, style);
@@ -188,10 +177,8 @@ public class OutputSummery extends OutPut {
             temp4 = 0.0;
             for (Commodity commodity : commodities) {
                 if (commodity.getTransportKind().equals("ترانزیت")) {
-                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getPlanTon();
-                    temp2 += commodity.getOperationTon();
-                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometerPlan();
-                    temp4 += commodity.getTonKilometerOperation();
+                    temp1 += commodity.getHowMuchIsAllowed() * commodity.getTon();
+                    temp3 += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
                 }
             }
             setCell(row1, 3, temp1, style);
@@ -203,7 +190,7 @@ public class OutputSummery extends OutPut {
 
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -211,13 +198,7 @@ public class OutputSummery extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

@@ -1,0 +1,41 @@
+#dialogPan {
+    -fx-font-size: 12;
+    -jfx-color1: #516360;
+    -jfx-color2: #6D9387;
+    -jfx-color3: #CEDBD8;
+    -jfx-color4: #EDD8CA;
+    -jfx-color5: #D3C6B7;
+    -fx-button : -jfx-color2;
+}
+
+.jfx-button {
+    -jfx-button-type: RAISED;
+    -fx-background-color:-fx-button;
+    -fx-text-fill: -jfx-color3;
+}
+
+.button {
+    -fx-font-weight: BOld;
+    -fx-font-size: 12;
+    -fx-pref-width: 80;
+    -fx-text-alignment: center;
+}
+
+.jfx-text-field {
+    -fx-font-size: 16;
+    -fx-border-radius: 10px;
+    -fx-border-color: -jfx-color1;
+    -fx-font-family: "B Nazanin";
+    -fx-border-style: solid;
+}
+
+.jfx-text-field > .input-line {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+    -fx-translate-y: 0px;
+}
+
+.jfx-text-field > .input-focused-line {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0px;
+}

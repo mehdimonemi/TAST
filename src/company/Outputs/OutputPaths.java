@@ -9,7 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 
-import static company.Main.row;
+import static company.Assignment.row;
 
 /**
  * Created by Monemi_M on 01/21/2018.
@@ -22,7 +22,7 @@ public class OutputPaths extends OutPut {
         XSSFWorkbook pathsWorkbook;
         setMassageForWritingFile("Paths");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 pathsWorkbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -43,14 +43,14 @@ public class OutputPaths extends OutPut {
             setCell(row, 6, "مسیر", style);
 
             for (Commodity commodity : commodities) {
-                row = sheet.createRow(commodity.getId());
+                row = sheet.createRow(commodity.getTag());
 
                 setCell(row, 0, commodity.getOrigin(), style);
                 setCell(row, 1, commodity.getDestination(), style);
                 setCell(row, 2, commodity.getDistance(), style);
-                setCell(row, 3, commodity.getPlanTon()*commodity.getHowMuchIsAllowed(), style);
-                setCell(row, 4, commodity.getTonKilometerPlan()*commodity.getHowMuchIsAllowed(), style);
-                setCell(row, 5, commodity.getPlanWagon()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 3, commodity.getTon()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 4, commodity.getTonKilometer()*commodity.getHowMuchIsAllowed(), style);
+                setCell(row, 5, commodity.getWagon()*commodity.getHowMuchIsAllowed(), style);
 
                 for (int i = 0; i < commodity.getBlocks().size(); i++) {
                     setCell(row, i + 6, commodity.getBlocks().get(i).getOrigin(), style);
@@ -61,20 +61,14 @@ public class OutputPaths extends OutPut {
 
             }
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             pathsWorkbook.write(outFile);
             outFile.flush();
             outFile.close();
 //            sheet = null;
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }

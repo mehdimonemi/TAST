@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<GridPane fx:id="dialogPan" nodeOrientation="RIGHT_TO_LEFT" stylesheets="/company/UI/DialogStyle.css"
+      xmlns="http://javafx.com/javafx/8.0.171"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="company.UI.CorrectNameController"
+      vgap="10" hgap="10">
+    <Label text="Origin" GridPane.rowIndex="1" GridPane.columnIndex="1" alignment="CENTER"/>
+    <JFXTextField fx:id="dialogOrigin" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+    <Label text="Destination" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    <JFXTextField fx:id="dialogDestination" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+    <HBox GridPane.rowIndex="3" GridPane.columnIndex="2" spacing="30">
+        <JFXButton text="Ok" fx:id="dialogOk"/>
+        <JFXButton text="Close" fx:id="dialogStop" onAction="#onStop"/>
+    </HBox>
+</GridPane>

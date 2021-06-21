@@ -10,9 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
-import static company.Main.*;
+import static company.Assignment.*;
 
 /**
  * Created by Monemi_M on 01/21/2018.
@@ -27,7 +26,7 @@ public class OutputCargoSummery extends OutPut {
 
         setMassageForWritingFile("Cargo Summery");
         try {
-            inFile = new FileInputStream(new File(filePath));
+            inFile = new FileInputStream(filePath);
             try {
                 workbook = new XSSFWorkbook(inFile);
             } catch (EmptyFileException e) {
@@ -54,38 +53,35 @@ public class OutputCargoSummery extends OutPut {
             double totalTonPlan = 0;
             double totalTonKilometerPlan = 0;
             for (Commodity commodity : commodities) {
-                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
-                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan();
+                totalTonPlan += commodity.getHowMuchIsAllowed()*commodity.getTon();
+                totalTonKilometerPlan += commodity.getHowMuchIsAllowed()*commodity.getTonKilometer();
             }
 
             int rowCounter = 2;
             boolean flag;
-            for (Iterator<String> it1 = mainCargoTypes.iterator(); it1.hasNext(); ) {
+            for (String cargoType : mainCargoTypes) {
                 StringBuffer wagonsNames = new StringBuffer();
-                String mainCargoType = it1.next();
                 double tonMainCargoType = 0;
                 double tonKilometerMainCargoType = 0;
-                for (Iterator<String> it2 = wagons.iterator(); it2.hasNext(); ) {
+                for (String wagon : wagons) {
                     flag = true;
-                    String wagonType = it2.next();
                     for (Commodity commodity : commodities) {
-                        if (commodity.getMainCargoType().equalsIgnoreCase(mainCargoType) && commodity.getWagonType().equalsIgnoreCase(wagonType)) {
+                        if (commodity.getMainCargoType().equalsIgnoreCase(cargoType) && commodity.getWagonType().equalsIgnoreCase(wagon)) {
                             if (flag) {
                                 if (wagonsNames.length() == 0) {
-                                    wagonsNames.append(wagonType);
-                                    flag = false;
+                                    wagonsNames.append(wagon);
                                 } else {
-                                    wagonsNames.append(" و " + wagonType);
-                                    flag = false;
+                                    wagonsNames.append(" و ").append(wagon);
                                 }
+                                flag = false;
                             }
-                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getTonKilometerPlan();
-                            tonMainCargoType += commodity.getHowMuchIsAllowed()*commodity.getPlanTon();
+                            tonKilometerMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getTonKilometer();
+                            tonMainCargoType += commodity.getHowMuchIsAllowed() * commodity.getTon();
                         }
                     }
                 }
                 row = sheet.createRow(rowCounter);
-                setCell(row, 0, mainCargoType, style);
+                setCell(row, 0, cargoType, style);
                 setCell(row, 1, String.valueOf(wagonsNames), style);
                 setCell(row, 2, tonMainCargoType, style);
                 setCell(row, 3, tonKilometerMainCargoType, style);
@@ -102,7 +98,7 @@ public class OutputCargoSummery extends OutPut {
             }
 
             inFile.close();
-            outFile = new FileOutputStream(new File(filePath));
+            outFile = new FileOutputStream(filePath);
             workbook.write(outFile);
 
             outFile.flush();
@@ -110,13 +106,7 @@ public class OutputCargoSummery extends OutPut {
 
             successDisplay();
 
-        } catch (FileNotFoundException e) {
-            failDisplay(e);
-        } catch (IOException e) {
-            failDisplay(e);
-        } catch (NullPointerException e) {
-            failDisplay(e);
-        } catch (IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException e) {
             failDisplay(e);
         }
     }
