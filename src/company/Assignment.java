@@ -11,16 +11,12 @@ import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
 import ilog.cplex.CpxException;
 import ilog.cplex.IloCplex;
-import org.apache.poi.EmptyFileException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -114,28 +110,32 @@ public class Assignment {
     }
 
     public boolean findPaths() {
-        for (Commodity commodity : commodities) {
-            int stationA = commodity.getOriginId();
-            int stationB = commodity.getDestinationId();
-            String a = commodity.getOrigin();
-            String b = commodity.getDestination();
-            if (a.equals(b) && !a.contains("سایر")) {
-                mainController.alert("same OD for " + commodity);
-                commodity.setDistance(150);
-                commodity.setTonKilometer(150 * commodity.getTon());
-                continue;
+        try {
+            IloCplex model = new IloCplex();
+            for (Commodity commodity : commodities) {
+                int stationA = commodity.getOriginId();
+                int stationB = commodity.getDestinationId();
+                String a = commodity.getOrigin();
+                String b = commodity.getDestination();
+                if (a.equals(b) && !a.contains("سایر")) {
+                    mainController.alert("same OD for " + commodity);
+                    commodity.setDistance(150);
+                    commodity.setTonKilometer(150 * commodity.getTon());
+                    continue;
+                }
+                doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b, model);
             }
-            doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b);
-
+        } catch (IloException e) {
+            e.printStackTrace();
         }
+        System.gc();
         return true;
     }
 
     public static ArrayList<Block> doModel(ArrayList<Block> blocks, PathExceptions pathExceptions,
                                            ArrayList<Station> stations, Commodity commodity,
-                                           int stationA, int stationB, String a, String b) {
+                                           int stationA, int stationB, String a, String b, IloCplex model) {
         try {
-            IloCplex model = new IloCplex();
             IloNumVar[] X = new IloNumVar[blocks.size()];
             IloNumExpr goalFunction;
             IloNumExpr constraint;
@@ -257,6 +257,7 @@ public class Assignment {
                             X[i] = null;
                         }
                     }
+//                    model.end();
 
                     goalFunction = null;
                     constraint = null;

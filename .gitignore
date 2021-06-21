@@ -15,8 +15,6 @@
 *.xlsx
 *.class
 
-Data.xlsx
-~$Data.xlsx
 TAST.exe
 TAST.jar
 updater.jar

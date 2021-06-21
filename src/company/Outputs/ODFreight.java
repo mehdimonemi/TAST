@@ -4,9 +4,10 @@ import company.Data.Block;
 import company.Data.Commodity;
 import company.Data.PathExceptions;
 import company.Data.Station;
+import ilog.concert.IloException;
+import ilog.cplex.IloCplex;
 import org.apache.poi.EmptyFileException;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -58,8 +59,10 @@ public class ODFreight extends OutPut {
             double wagon = 0;
 
             Commodity temp = new Commodity();
+            IloCplex model = new IloCplex();
             ArrayList<Block> givenPathBlocks = new ArrayList<>
-                    (Objects.requireNonNull(doModel(blocks, pathExceptions, stations, temp, originId, destinationId, origin, destination)));
+                    (Objects.requireNonNull(doModel(blocks, pathExceptions,
+                            stations, temp, originId, destinationId, origin, destination, model)));
 
             int rowCounter = 1;
             for (Commodity commodity : commodities) {
@@ -102,29 +105,29 @@ public class ODFreight extends OutPut {
             setCell(sheet.createRow(3), 0, "واگن عبوری", style);
             setCell(sheet.createRow(4), 0, "تن کیلومتر مبدا مقصد", style);
             setCell(sheet.createRow(5), 0, "تن کیلومتر مختص مسیر", style);
-
-            setCell(sheet1.createRow(0), 0, "مبدا", style);
-            setCell(sheet1.getRow(0), 0, "مقصد", style);
-            setCell(sheet1.getRow(0), 0, "واگن", style);
-            setCell(sheet1.getRow(0), 0, "تناژ", style);
-            setCell(sheet1.getRow(0), 0, "نوع واگن", style);
-            setCell(sheet1.getRow(0), 0, "نوع بار", style);
-            setCell(sheet1.getRow(0), 0, "تن کیلومتر مختص مسیر", style);
-
-            setCell(sheet2.createRow(0), 0, "مبدا", style);
-            setCell(sheet2.getRow(0), 0, "مقصد", style);
-            setCell(sheet2.getRow(0), 0, "واگن", style);
-            setCell(sheet2.getRow(0), 0, "تناژ", style);
-            setCell(sheet2.getRow(0), 0, "نوع واگن", style);
-            setCell(sheet2.getRow(0), 0, "نوع بار", style);
-            setCell(sheet2.getRow(0), 0, "تن کیلومتر مختص مسیر", style);
-
             setCell(sheet.getRow(0), 1, origin, style);
             setCell(sheet.getRow(1), 1, destination, style);
             setCell(sheet.getRow(2), 1, ton, style);
             setCell(sheet.getRow(3), 1, wagon, style);
             setCell(sheet.getRow(4), 1, tonKilometer, style);
             setCell(sheet.getRow(5), 1, pathTonKilometer, style);
+
+            setCell(sheet1.createRow(0), 0, "مبدا", style);
+            setCell(sheet1.getRow(0), 1, "مقصد", style);
+            setCell(sheet1.getRow(0), 2, "واگن", style);
+            setCell(sheet1.getRow(0), 3, "تناژ", style);
+            setCell(sheet1.getRow(0), 4, "نوع واگن", style);
+            setCell(sheet1.getRow(0), 5, "نوع بار", style);
+            setCell(sheet1.getRow(0), 6, "تن کیلومتر مختص مسیر", style);
+
+            setCell(sheet2.createRow(0), 0, "مبدا", style);
+            setCell(sheet2.getRow(0), 1, "مقصد", style);
+            setCell(sheet2.getRow(0), 2, "واگن", style);
+            setCell(sheet2.getRow(0), 3, "تناژ", style);
+            setCell(sheet2.getRow(0), 4, "نوع واگن", style);
+            setCell(sheet2.getRow(0), 5, "نوع بار", style);
+            setCell(sheet2.getRow(0), 6, "تن کیلومتر مختص مسیر", style);
+
 
             //b to a freight
             ton = 0;
@@ -182,7 +185,7 @@ public class ODFreight extends OutPut {
 
             successDisplay();
 
-        } catch (IOException | NullPointerException | IllegalStateException e) {
+        } catch (IOException | NullPointerException | IllegalStateException | IloException e) {
             failDisplay(e);
         }
     }
