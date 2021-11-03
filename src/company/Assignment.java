@@ -150,8 +150,18 @@ public class Assignment {
                         if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
                             X[j] = model.numVar(1, 1, IloNumVarType.Int);
                             flag = false;
-                        } else if ((a.equals("ری") && !b.equals("تهران")) && (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام"))) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                        } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری")) &&
+                                ((blocks.get(j).getOrigin().equals("ری")
+                                        && blocks.get(j).getDestination().equals("تهران")) ||
+                                        ((blocks.get(j).getOrigin().equals("تهران")
+                                                && blocks.get(j).getDestination().equals("ری"))))) {
+                            X[j] = model.numVar(0, 1, IloNumVarType.Int);
+                            flag = false;
+                        } else if (((blocks.get(j).getOrigin().equals("ری")
+                                && blocks.get(j).getDestination().equals("تهران")) ||
+                                ((blocks.get(j).getOrigin().equals("تهران")
+                                        && blocks.get(j).getDestination().equals("ری"))))) {
+                            X[j] = model.numVar(0, 0, IloNumVarType.Int);
                             flag = false;
                         }
                         i += 2;
@@ -160,25 +170,20 @@ public class Assignment {
                         X[j] = model.numVar(0, 1, IloNumVarType.Int);
                     }
                 }
-            } else if (a.equals("ری") && !b.equals("تهران")) {
+            } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری"))) {
                 for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
-                }
-            } else if (b.equals("ری") && !a.equals("تهران")) {
-                for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("بهرام") && blocks.get(j).getDestination().equals("ری")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
+                    X[j] = model.numVar(0, 1, IloNumVarType.Int);
                 }
             } else {
                 for (int i = 0; i < blocks.size(); i++) {
-                    X[i] = model.numVar(0, 1, IloNumVarType.Int);
+                    if ((blocks.get(i).getOrigin().equals("ری")
+                            && blocks.get(i).getDestination().equals("تهران")) ||
+                            ((blocks.get(i).getOrigin().equals("تهران")
+                                    && blocks.get(i).getDestination().equals("ری")))) {
+                        X[i] = model.numVar(0, 0, IloNumVarType.Int);
+                    } else {
+                        X[i] = model.numVar(0, 1, IloNumVarType.Int);
+                    }
                 }
             }
 
@@ -257,8 +262,6 @@ public class Assignment {
                             X[i] = null;
                         }
                     }
-//                    model.end();
-
                     goalFunction = null;
                     constraint = null;
                 } else {
