@@ -1,5 +1,6 @@
 package company.Outputs;
 
+import company.Assignment;
 import company.Data.Block;
 import company.Data.Commodity;
 import org.apache.poi.EmptyFileException;
@@ -105,14 +106,14 @@ public class OutputDistricts extends OutPut {
                 double tonKilometerDay = 0.0;
                 for (Commodity commodity : commodities) {
                     for (Block block : commodity.getBlocks()) {
-                        if (block.getDistrict().equals(district)&& !(commodity.getDistance()==150)) {
+                        if (block.getDistrict().equals(district)&& !(commodity.getDistance()==Kasr)) {
                             tonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getTon()));
                             tonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getTon())) / period);
                             commodity.setCheck(commodity.getCheck()+1);
                         }
                     }
                     //add ton kilometer saier
-                    if(commodity.getDistance()==150 && commodity.getOriginDistrict().equals(district)){
+                    if(commodity.getDistance()== Kasr && commodity.getOriginDistrict().equals(district)){
                         tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getTon()));
                         tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getTon())) / period);
                         commodity.setCheck(0);

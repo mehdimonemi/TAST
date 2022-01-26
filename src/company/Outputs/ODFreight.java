@@ -135,6 +135,12 @@ public class ODFreight extends OutPut {
             tonKilometer = 0;
             wagon = 0;
 
+            temp = new Commodity();
+            model = new IloCplex();
+             givenPathBlocks = new ArrayList<>
+                    (Objects.requireNonNull(doModel(blocks, pathExceptions,
+                            stations, temp, destinationId, originId, destination, origin, model)));
+
             rowCounter = 1;
             for (Commodity commodity : commodities) {
                 boolean tonAdded = false;

@@ -35,17 +35,24 @@ public class PathExceptions {
         this.blocksMustbe = blocksMustbe;
     }
 
-    public int isException(String origin, String destination){
-        for(String a: originDistricts){
-            for (String b: destinationDistricts){
-                if(a.equals(origin) && b.equals((destination))){
-                    return 1;
+    public int isException(String originD, String destinationD, String a, String b) {
+        int result = -1;
+        for (String district1 : originDistricts) {
+            for (String district2 : destinationDistricts) {
+                if (district1.equals(originD) && district2.equals((destinationD))) {
+                    result = 1;
                 }
-                if (a.equals(destination) && b.equals((origin))){
-                    return 2;
+                if (district1.equals(destinationD) && district2.equals((originD))) {
+                    result = 2;
                 }
             }
         }
-        return -1;
+        for (Block block : blocksMustbe) {
+            if (a.equals(block.getOrigin()) || a.equals(block.getDestination()) ||
+                    b.equals(block.getOrigin()) || b.equals(block.getDestination())) {
+                result = -1;
+            }
+        }
+        return result;
     }
 }

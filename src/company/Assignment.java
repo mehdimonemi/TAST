@@ -40,6 +40,7 @@ public class Assignment {
     public static XSSFCell cell;
     public static OutPut outPut = new OutPut();
 
+    public static int Kasr = 150;
 
     public void main(boolean fullAssignmentSelected) {
 
@@ -119,8 +120,8 @@ public class Assignment {
                 String b = commodity.getDestination();
                 if (a.equals(b) && !a.contains("سایر")) {
                     mainController.alert("same OD for " + commodity);
-                    commodity.setDistance(150);
-                    commodity.setTonKilometer(150 * commodity.getTon());
+                    commodity.setDistance(Kasr);
+                    commodity.setTonKilometer(Kasr * commodity.getTon());
                     continue;
                 }
                 doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b, model);
@@ -142,7 +143,7 @@ public class Assignment {
             //start solving model for the commodity
             //masirhai estesna baiad az masir khas beran
             int temp = pathExceptions.isException(OutPut.districtOf(a, stations),
-                    OutPut.districtOf(b, stations));
+                    OutPut.districtOf(b, stations), a, b);
             if (temp == 1 || temp == 2) {
                 for (int j = 0; j < blocks.size(); j++) {
                     boolean flag = true;
@@ -150,8 +151,18 @@ public class Assignment {
                         if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
                             X[j] = model.numVar(1, 1, IloNumVarType.Int);
                             flag = false;
-                        } else if ((a.equals("ری") && !b.equals("تهران")) && (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام"))) {
-                            X[j] = model.numVar(1, 1, IloNumVarType.Int);
+                        } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری")) &&
+                                ((blocks.get(j).getOrigin().equals("ری")
+                                        && blocks.get(j).getDestination().equals("تهران")) ||
+                                        ((blocks.get(j).getOrigin().equals("تهران")
+                                                && blocks.get(j).getDestination().equals("ری"))))) {
+                            X[j] = model.numVar(0, 1, IloNumVarType.Int);
+                            flag = false;
+                        } else if (((blocks.get(j).getOrigin().equals("ری")
+                                && blocks.get(j).getDestination().equals("تهران")) ||
+                                ((blocks.get(j).getOrigin().equals("تهران")
+                                        && blocks.get(j).getDestination().equals("ری"))))) {
+                            X[j] = model.numVar(0, 0, IloNumVarType.Int);
                             flag = false;
                         }
                         i += 2;
@@ -160,25 +171,20 @@ public class Assignment {
                         X[j] = model.numVar(0, 1, IloNumVarType.Int);
                     }
                 }
-            } else if (a.equals("ری") && !b.equals("تهران")) {
+            } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری"))) {
                 for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("ری") && blocks.get(j).getDestination().equals("بهرام")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
-                }
-            } else if (b.equals("ری") && !a.equals("تهران")) {
-                for (int j = 0; j < blocks.size(); j++) {
-                    if (blocks.get(j).getOrigin().equals("بهرام") && blocks.get(j).getDestination().equals("ری")) {
-                        X[j] = model.numVar(1, 1, IloNumVarType.Int);
-                    } else {
-                        X[j] = model.numVar(0, 1, IloNumVarType.Int);
-                    }
+                    X[j] = model.numVar(0, 1, IloNumVarType.Int);
                 }
             } else {
                 for (int i = 0; i < blocks.size(); i++) {
-                    X[i] = model.numVar(0, 1, IloNumVarType.Int);
+                    if ((blocks.get(i).getOrigin().equals("ری")
+                            && blocks.get(i).getDestination().equals("تهران")) ||
+                            ((blocks.get(i).getOrigin().equals("تهران")
+                                    && blocks.get(i).getDestination().equals("ری")))) {
+                        X[i] = model.numVar(0, 0, IloNumVarType.Int);
+                    } else {
+                        X[i] = model.numVar(0, 1, IloNumVarType.Int);
+                    }
                 }
             }
 
@@ -257,19 +263,17 @@ public class Assignment {
                             X[i] = null;
                         }
                     }
-//                    model.end();
-
                     goalFunction = null;
                     constraint = null;
                 } else {
-                    commodity.setDistance(150);
-                    commodity.setTonKilometer(150 * commodity.getTon());
+                    commodity.setDistance(Kasr);
+                    commodity.setTonKilometer(Kasr * commodity.getTon());
                     mainController.alert("No path for " + commodity);
                     model.clearModel();
                 }
-                if (commodity.getDistance() < 150) {
-                    commodity.setDistance(150);
-                    commodity.setTonKilometer(150 * commodity.getTon());
+                if (commodity.getDistance() < Kasr) {
+                    commodity.setDistance(Kasr);
+                    commodity.setTonKilometer(Kasr * commodity.getTon());
                     model.clearModel();
                 }
                 return commodity.getBlocks();
@@ -422,6 +426,7 @@ public class Assignment {
 
         if (result[0].equals("-1")) {//if result[0] is 0 here,that means we are running this process on second or more time
             commodities = new ArrayList<>();
+            Commodity.commodityCounter = 1;
             result[0] = "1";
         }
 
@@ -468,10 +473,20 @@ public class Assignment {
                     commodities.add(commodity);
 
                     //we update alter names if only the station name is not duplicate (special)
+                    if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag()
+                    ) {
+                        updateAlterNames(result[1], result[3], data);
+                        (new File(outPutDirectory + "/Data.xlsx")).delete();
+                        file = new FileOutputStream(outPutDirectory + "/Data.xlsx");
+                        data.write(file);
+                        file.flush();
+                        file.close();
+                    }
+
                     if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag() ||
                             !stations.get(Integer.parseInt(findName(result[2])[1])).isSpecialTag()
                     ) {
-                        updateAlterNames(result, data);
+                        updateAlterNames(result[2], result[4], data);
                         (new File(outPutDirectory + "/Data.xlsx")).delete();
                         file = new FileOutputStream(outPutDirectory + "/Data.xlsx");
                         data.write(file);
@@ -521,70 +536,42 @@ public class Assignment {
         return result;
     }
 
-    private void updateAlterNames(String[] result, XSSFWorkbook workBook) {
-
-        String correctOriginName = findName(result[1])[0];
-        String correctDestinationName = findName(result[2])[0];
+    private void updateAlterNames(String correctName, String wrongName, XSSFWorkbook workBook) {
         try {
 
             XSSFSheet sheet1 = workBook.getSheetAt(0);
 
             //update excel
             for (int i = 0; i < sheet1.getLastRowNum(); i++) {
-                boolean finishedWithOrigin = false;
-                boolean finishedWithDestination = false;
+                boolean finished = false;
                 XSSFRow row = sheet1.getRow(i + 1);
-                if (row.getCell(1).getStringCellValue().equals(correctOriginName)) {
+                if (row.getCell(1).getStringCellValue().equals(correctName)) {
                     boolean check = true;
                     for (int j = 5; j < row.getLastCellNum(); j++) {
-                        if (result[3].equals(row.getCell(j).getStringCellValue()))
+                        if (wrongName.equals(row.getCell(j).getStringCellValue()))
                             check = false;
                     }
                     if (check) {
-                        row.createCell(row.getLastCellNum()).setCellValue(result[3]);
+                        row.createCell(row.getLastCellNum()).setCellValue(wrongName);
                     }
-                    finishedWithOrigin = true;
+                    finished = true;
                 }
-                if (row.getCell(1).getStringCellValue().equals(correctDestinationName)) {
-                    boolean check = true;
-                    for (int j = 5; j < row.getLastCellNum(); j++) {
-                        if (result[4].equals(row.getCell(j).getStringCellValue()))
-                            check = false;
-                    }
-                    if (check) {
-                        row.createCell(row.getLastCellNum()).setCellValue(result[4]);
-                    }
-                    finishedWithDestination = true;
-                }
-                if (finishedWithDestination && finishedWithOrigin)
+                if (finished)
                     break;
             }
 
             //station names
             for (Station station : stations) {
-                if (station.getName().equals(correctOriginName)) {
+                if (station.getName().equals(correctName)) {
                     boolean check = true;
                     for (String name : station.getAlterNames()) {
-                        if (result[3].equals(name)) {
+                        if (wrongName.equals(name)) {
                             check = false;
                             break;
                         }
                     }
                     if (check) {
-                        station.getAlterNames().add(result[3]);
-                        break;
-                    }
-                }
-                if (station.getName().equals(correctDestinationName)) {
-                    boolean check = true;
-                    for (String name : station.getAlterNames()) {
-                        if (result[4].equals(name)) {
-                            check = false;
-                            break;
-                        }
-                    }
-                    if (check) {
-                        station.getAlterNames().add(result[4]);
+                        station.getAlterNames().add(wrongName);
                         break;
                     }
                 }
@@ -697,5 +684,4 @@ public class Assignment {
         }
     }
 }
-
 
