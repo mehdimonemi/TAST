@@ -4,9 +4,6 @@
 /.idea
 /out
 /temp/*
-/Tast
-/Tast - DM
-/lib/poi-4.1.2/docs
 /target
 
 
@@ -18,9 +15,5 @@
 
 TAST.exe
 TAST.jar
-updater.jar
-
-/lib/cplex/examples/
-/lib/cplex/excel
-/lib/cplex/matlab
-/lib/cplex/python
+GIS.xlsx
+Tast - DM/jre-8u311-windows-x64.exe

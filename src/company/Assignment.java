@@ -151,17 +151,10 @@ public class Assignment {
                         if (blocks.get(j).equals(pathExceptions.getBlocksMustbe().get(i))) {
                             X[j] = model.numVar(1, 1, IloNumVarType.Int);
                             flag = false;
-                        } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری")) &&
-                                ((blocks.get(j).getOrigin().equals("ری")
-                                        && blocks.get(j).getDestination().equals("تهران")) ||
-                                        ((blocks.get(j).getOrigin().equals("تهران")
-                                                && blocks.get(j).getDestination().equals("ری"))))) {
+                        } else if (isTehranReyCommodity(a, b) && isTehranReyBlock(blocks.get(j))) {
                             X[j] = model.numVar(0, 1, IloNumVarType.Int);
                             flag = false;
-                        } else if (((blocks.get(j).getOrigin().equals("ری")
-                                && blocks.get(j).getDestination().equals("تهران")) ||
-                                ((blocks.get(j).getOrigin().equals("تهران")
-                                        && blocks.get(j).getDestination().equals("ری"))))) {
+                        } else if (isTehranReyBlock(blocks.get(j))) {
                             X[j] = model.numVar(0, 0, IloNumVarType.Int);
                             flag = false;
                         }
@@ -171,16 +164,13 @@ public class Assignment {
                         X[j] = model.numVar(0, 1, IloNumVarType.Int);
                     }
                 }
-            } else if ((a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری"))) {
+            } else if (isTehranReyCommodity(a, b)) {
                 for (int j = 0; j < blocks.size(); j++) {
                     X[j] = model.numVar(0, 1, IloNumVarType.Int);
                 }
             } else {
                 for (int i = 0; i < blocks.size(); i++) {
-                    if ((blocks.get(i).getOrigin().equals("ری")
-                            && blocks.get(i).getDestination().equals("تهران")) ||
-                            ((blocks.get(i).getOrigin().equals("تهران")
-                                    && blocks.get(i).getDestination().equals("ری")))) {
+                    if (isTehranReyBlock(blocks.get(i))) {
                         X[i] = model.numVar(0, 0, IloNumVarType.Int);
                     } else {
                         X[i] = model.numVar(0, 1, IloNumVarType.Int);
@@ -285,6 +275,15 @@ public class Assignment {
             mainController.alert(e.getMessage());
             return null;
         }
+    }
+
+    private static boolean isTehranReyBlock(Block block) {
+        return (block.getOrigin().equals("ری") && block.getDestination().equals("تهران")) ||
+                ((block.getOrigin().equals("تهران") && block.getDestination().equals("ری")));
+    }
+
+    private static boolean isTehranReyCommodity(String a, String b) {
+        return a.equals("ری") || a.equals("تهران") || b.equals("تهران") || b.equals("ری");
     }
 
     public void readData(String outPutDirectory) {
@@ -445,8 +444,7 @@ public class Assignment {
             for (int i = Integer.parseInt(result[0]); i <= sheet3.getLastRowNum(); i++) {
                 XSSFRow row = sheet3.getRow(i);
                 if ((!result[1].equals("") || !result[2].equals("")) && i == Integer.parseInt(result[0])) {
-                    if (nameIsNotOkay(result[1]) ||
-                            nameIsNotOkay(result[2])) {
+                    if (nameIsNotOkay(result[1]) || nameIsNotOkay(result[2])) {
                         return result;
                     }
                 } else if (nameIsNotOkay(row.getCell(0).getStringCellValue().trim()) ||
@@ -473,9 +471,8 @@ public class Assignment {
                     commodities.add(commodity);
 
                     //we update alter names if only the station name is not duplicate (special)
-                    if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag()
-                    ) {
-                        updateAlterNames(result[1], result[3], data);
+                    if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag()) {
+                        updateAlterNames(findName(result[1])[0], result[3], data);
                         (new File(outPutDirectory + "/Data.xlsx")).delete();
                         file = new FileOutputStream(outPutDirectory + "/Data.xlsx");
                         data.write(file);
@@ -483,10 +480,8 @@ public class Assignment {
                         file.close();
                     }
 
-                    if (!stations.get(Integer.parseInt(findName(result[1])[1])).isSpecialTag() ||
-                            !stations.get(Integer.parseInt(findName(result[2])[1])).isSpecialTag()
-                    ) {
-                        updateAlterNames(result[2], result[4], data);
+                    if (!stations.get(Integer.parseInt(findName(result[2])[1])).isSpecialTag()) {
+                        updateAlterNames(findName(result[2])[0], result[4], data);
                         (new File(outPutDirectory + "/Data.xlsx")).delete();
                         file = new FileOutputStream(outPutDirectory + "/Data.xlsx");
                         data.write(file);
