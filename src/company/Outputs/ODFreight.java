@@ -75,9 +75,9 @@ public class ODFreight extends OutPut {
                                 setCell(sheet1.createRow(rowCounter), 0, commodity.getOrigin(), style);
                                 setCell(sheet1.getRow(rowCounter), 1, commodity.getDestination(), style);
                                 setCell(sheet1.getRow(rowCounter), 2,
-                                        commodity.getHowMuchIsAllowed() * commodity.getTon(), style);
+                                        commodity.getHowMuchIsAllowed() * commodity.getWagon(), style);
                                 setCell(sheet1.getRow(rowCounter), 3,
-                                        commodity.getHowMuchIsAllowed() * commodity.getTonKilometer(), style);
+                                        commodity.getHowMuchIsAllowed() * commodity.getTon(), style);
                                 setCell(sheet1.getRow(rowCounter), 4, commodity.getWagonType(), style);
                                 setCell(sheet1.getRow(rowCounter), 5, commodity.getCargoType(), style);
 
@@ -129,6 +129,11 @@ public class ODFreight extends OutPut {
             setCell(sheet2.getRow(0), 6, "تن کیلومتر مختص مسیر", style);
 
 
+            Commodity temp1 = new Commodity();
+            givenPathBlocks = new ArrayList<>
+                    (Objects.requireNonNull(doModel(blocks, pathExceptions,
+                            stations, temp1, destinationId, originId, destination, origin, model)));
+
             //b to a freight
             ton = 0;
             pathTonKilometer = 0;
@@ -152,9 +157,9 @@ public class ODFreight extends OutPut {
                                 setCell(sheet2.createRow(rowCounter), 0, commodity.getOrigin(), style);
                                 setCell(sheet2.getRow(rowCounter), 1, commodity.getDestination(), style);
                                 setCell(sheet2.getRow(rowCounter), 2,
-                                        commodity.getHowMuchIsAllowed() * commodity.getTon(), style);
+                                        commodity.getHowMuchIsAllowed() * commodity.getWagon(), style);
                                 setCell(sheet2.getRow(rowCounter), 3,
-                                        commodity.getHowMuchIsAllowed() * commodity.getTonKilometer(), style);
+                                        commodity.getHowMuchIsAllowed() * commodity.getTon(), style);
                                 setCell(sheet2.getRow(rowCounter), 4, commodity.getWagonType(), style);
                                 setCell(sheet2.getRow(rowCounter), 5, commodity.getCargoType(), style);
 
