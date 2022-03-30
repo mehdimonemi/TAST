@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exe4j version="8.0" transformSequenceNumber="3">
+  <directoryPresets config="./lib" />
+  <application name="TAST" distributionSourceDir="C:/Users/ABBSH1200004073/IdeaProjects/TAST/Tast - DM" />
+  <executable name="TAST" wrapperType="embed" iconSet="true" iconFile="C:/Users/ABBSH1200004073/IdeaProjects/TAST/logo_O9i_1.ico" executableDir="." executableMode="gui" checkConsoleParameter="true" dpiAware="false">
+    <versionInfo include="true" companyName="RAI" productVersion="3.1" />
+  </executable>
+  <java mainClass="company.AppDM" minVersion="1.8">
+    <searchSequence>
+      <directory location="../../../../../Program Files/Java/jre1.8.0_311" />
+      <registry />
+    </searchSequence>
+    <classPath>
+      <archive location="./lib/TAS.Jars.jar" />
+      <archive location="./lib/cplex.jar" />
+      <archive location="./TAST.jar" />
+    </classPath>
+    <nativeLibraryDirectories>
+      <directory name="./lib" />
+    </nativeLibraryDirectories>
+  </java>
+</exe4j>
