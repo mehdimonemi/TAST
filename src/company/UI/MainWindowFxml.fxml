@@ -69,15 +69,19 @@
         <JFXRadioButton text="Restricted Assignment" fx:id="restrictedAssignment"/>
     </HBox>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
-        <Label fx:id="periodLabel" text="Planing Period in day"/>
-        <JFXTextField fx:id="periodField" promptText="365" alignment="CENTER"/>
+        <Label text="Planing Period in day"/>
+        <JFXTextField fx:id="periodField" promptText="365 Days" alignment="CENTER"/>
+    </HBox>
+    <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
+        <Label text="Length for Others"/>
+        <JFXTextField fx:id="othersLengthField" promptText="150 KM" alignment="CENTER"/>
     </HBox>
     <HBox alignment="CENTER" prefWidth="500.0" spacing="10">
         <JFXButton fx:id="selectDirectory" text="Select Directory"/>
         <JFXButton fx:id="analyse" text="Analyse/Read" disable="true"/>
         <JFXButton fx:id="startProcess" text="Start Process" disable="true"/>
     </HBox>
-    <JFXTextArea fx:id="textArea" editable="false">
+    <JFXTextArea fx:id="textArea" editable="false" minHeight="250">
         <VBox.margin>
             <Insets left="20" right="20"/>
         </VBox.margin>

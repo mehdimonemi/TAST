@@ -31,6 +31,7 @@ import java.util.Scanner;
 
 import static company.App.dialogController;
 import static company.App.mainController;
+import static company.Assignment.lengthDistrictOther;
 
 public class MainController {
     @FXML
@@ -41,7 +42,7 @@ public class MainController {
     @FXML
     private JFXRadioButton fullAssignment, restrictedAssignment;
     @FXML
-    private JFXTextField periodField, cargoOrigin, cargoDestination;
+    private JFXTextField periodField, cargoOrigin, cargoDestination, othersLengthField;
     @FXML
     private JFXButton selectDirectory, analyse, startProcess, exit, openOutput, suggestions, dialogStop;
     @FXML
@@ -49,10 +50,10 @@ public class MainController {
     @FXML
     JFXTextArea textArea;
 
-    Dialog<Boolean> correctNameDialog;
+    public Dialog<Boolean> correctNameDialog;
 
     public Service commoditiesCheck;
-    final String[][] commodityCheckResult = {new String[5]};//these string is for names check result. we will pass it throw many classes
+    public final String[][] commodityCheckResult = {new String[5]};//these string is for names check result. we will pass it throw many classes
 
     String outPutDirectory = null;
     String outPutFileName = null;
@@ -121,6 +122,9 @@ public class MainController {
                             outPutFileName = "./Output " + df.format(calendar) + ".xlsx";
 
                             if (isFileClose(outPutDirectory + outPutFileName)) {
+                                if (!othersLengthField.getText().equals("")) {
+                                    lengthDistrictOther = Integer.parseInt(othersLengthField.getText());
+                                }
 
                                 assignmentClass.main(fullAssignment.isSelected());
 
@@ -319,6 +323,11 @@ public class MainController {
         periodField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 periodField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+        othersLengthField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                othersLengthField.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
 

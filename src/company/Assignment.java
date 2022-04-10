@@ -40,7 +40,8 @@ public class Assignment {
     public static XSSFCell cell;
     public static OutPut outPut = new OutPut();
 
-    public static int Kasr = 150;
+    public static int lengthDistrictOther = 150;
+    public static int leastPossibleLength = 150;
 
     public void main(boolean fullAssignmentSelected) {
 
@@ -120,8 +121,8 @@ public class Assignment {
                 String b = commodity.getDestination();
                 if (a.equals(b) && !a.contains("سایر")) {
                     mainController.alert("same OD for " + commodity);
-                    commodity.setDistance(Kasr);
-                    commodity.setTonKilometer(Kasr * commodity.getTon());
+                    commodity.setDistance(leastPossibleLength);
+                    commodity.setTonKilometer(leastPossibleLength * commodity.getTon());
                     continue;
                 }
                 doModel(blocks, pathExceptions, stations, commodity, stationA, stationB, a, b, model);
@@ -256,14 +257,14 @@ public class Assignment {
                     goalFunction = null;
                     constraint = null;
                 } else {
-                    commodity.setDistance(Kasr);
-                    commodity.setTonKilometer(Kasr * commodity.getTon());
+                    commodity.setDistance(lengthDistrictOther);
+                    commodity.setTonKilometer(lengthDistrictOther * commodity.getTon());
                     mainController.alert("No path for " + commodity);
                     model.clearModel();
                 }
-                if (commodity.getDistance() < Kasr) {
-                    commodity.setDistance(Kasr);
-                    commodity.setTonKilometer(Kasr * commodity.getTon());
+                if (commodity.getDistance() < leastPossibleLength) {
+                    commodity.setDistance(leastPossibleLength);
+                    commodity.setTonKilometer(leastPossibleLength * commodity.getTon());
                     model.clearModel();
                 }
                 return commodity.getBlocks();

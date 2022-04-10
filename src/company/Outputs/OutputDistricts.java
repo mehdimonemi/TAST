@@ -1,6 +1,5 @@
 package company.Outputs;
 
-import company.Assignment;
 import company.Data.Block;
 import company.Data.Commodity;
 import org.apache.poi.EmptyFileException;
@@ -106,14 +105,14 @@ public class OutputDistricts extends OutPut {
                 double tonKilometerDay = 0.0;
                 for (Commodity commodity : commodities) {
                     for (Block block : commodity.getBlocks()) {
-                        if (block.getDistrict().equals(district)&& !(commodity.getDistance()==Kasr)) {
+                        if (block.getDistrict().equals(district) && (!(commodity.getDistance() == lengthDistrictOther) && !(commodity.getDistance() == leastPossibleLength))) {
                             tonKilometer += commodity.getHowMuchIsAllowed() * (block.getLength() * (commodity.getTon()));
                             tonKilometerDay += commodity.getHowMuchIsAllowed() * ((block.getLength() * (commodity.getTon())) / period);
-                            commodity.setCheck(commodity.getCheck()+1);
+                            commodity.setCheck(commodity.getCheck() + 1);
                         }
                     }
                     //add ton kilometer saier
-                    if(commodity.getDistance()== Kasr && commodity.getOriginDistrict().equals(district)){
+                    if ((commodity.getDistance() == lengthDistrictOther || commodity.getDistance() == leastPossibleLength) && commodity.getOriginDistrict().equals(district)) {
                         tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getTon()));
                         tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getTon())) / period);
                         commodity.setCheck(0);
@@ -167,7 +166,7 @@ public class OutputDistricts extends OutPut {
                         }
                     }
                     //add wagon kilometer saier
-                    if(commodity.getBlocks().size()==0){
+                    if (commodity.getBlocks().size() == 0) {
                         tonKilometer += commodity.getHowMuchIsAllowed() * (commodity.getDistance() * (commodity.getWagon()));
                         tonKilometerDay += commodity.getHowMuchIsAllowed() * ((commodity.getDistance() * (commodity.getWagon())) / period);
                     }
